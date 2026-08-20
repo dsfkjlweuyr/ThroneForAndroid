@@ -1,8 +1,10 @@
 package io.nekohasekai.sagernet.fmt.wireguard
 
 import moe.matsuri.nb4a.SingBoxOptions
-import moe.matsuri.nb4a.utils.Util
 import moe.matsuri.nb4a.utils.listByLineOrComma
+
+private const val BASE64_ALPHABET =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
 fun genReserved(anyStr: String): String {
     val values = anyStr
@@ -12,7 +14,13 @@ fun genReserved(anyStr: String): String {
         .filter { it.isNotEmpty() }
         .map { value -> value.toIntOrNull()?.takeIf { it in 0..255 } ?: return anyStr }
     if (values.size != 3) return anyStr
-    return Util.b64EncodeOneLine(ByteArray(3) { values[it].toByte() })
+    val bits = (values[0] shl 16) or (values[1] shl 8) or values[2]
+    return buildString(4) {
+        append(BASE64_ALPHABET[(bits ushr 18) and 0x3F])
+        append(BASE64_ALPHABET[(bits ushr 12) and 0x3F])
+        append(BASE64_ALPHABET[(bits ushr 6) and 0x3F])
+        append(BASE64_ALPHABET[bits and 0x3F])
+    }
 }
 
 fun buildSingBoxEndpointWireGuardBean(bean: WireGuardBean): SingBoxOptions.Endpoint_WireGuardOptions {
@@ -20,12 +28,12 @@ fun buildSingBoxEndpointWireGuardBean(bean: WireGuardBean): SingBoxOptions.Endpo
         type = "wireguard"
         address = bean.localAddress.listByLineOrComma()
         private_key = bean.privateKey
-        mtu = bean.mtu
+        mtu = bean.mtu?.takeIf { it > 0 }
         listen_port = bean.listenPort?.takeIf { it > 0 }
         peers = listOf(
             SingBoxOptions.Endpoint_WireGuardPeer().apply {
-                address = bean.serverAddress
-                port = bean.serverPort
+                address = bean.serverAddress?.takeIf { it.isNotBlank() }
+                port = bean.serverPort?.takeIf { it > 0 }
                 public_key = bean.peerPublicKey
                 pre_shared_key = bean.peerPreSharedKey.takeIf { it.isNotBlank() }
                 allowed_ips = listOf("0.0.0.0/0", "::/0")
