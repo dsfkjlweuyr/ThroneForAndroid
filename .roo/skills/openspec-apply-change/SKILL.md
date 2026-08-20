@@ -88,27 +88,40 @@ Implement tasks from an OpenSpec change.
    - Remaining tasks overview
    - Dynamic instruction from CLI
 
-6. **Implement tasks (loop until done or blocked)**
+6. **Implement exactly one rolling batch, then stop at a feedback gate**
 
-   For each pending task:
-   - Show which task is being worked on
-   - Make the code changes required
-   - Keep changes minimal and focused
-   - Mark task complete in the tasks file: `- [ ]` → `- [x]`
-   - Continue to next task
+   A batch is the smallest coherent change that can be reviewed, reverted, and validated independently. It is normally one pending implementation task, but split an oversized task in the tasks artifact before coding when it contains independently verifiable changes.
+
+   Before changing code:
+   - First reconcile any CI/device result supplied for the earliest unresolved validation gate
+   - If that result failed, select only the minimal repair for the current batch; do not advance to later implementation tasks
+   - Otherwise select the first pending implementation, repair, or validation task
+   - If the selected task is an external CI/device validation gate and no result is available, do not guess or edit code; stop and report the validation handoff
+
+   For the selected batch only:
+   - Show which batch is being worked on
+   - Make only the code, spec, and task-artifact changes required for that batch
+   - Run only locally available checks permitted by project context
+   - Mark an implementation task complete only when its specified implementation behavior is complete
+   - Mark a CI/device validation task complete only from actual reported evidence, never from local inference
+   - Stop after this batch or validation gate even if later tasks are clear; never begin a second code batch in the same invocation
 
    **Pause if:**
    - Task is unclear → ask for clarification
    - Implementation reveals a design issue → suggest updating artifacts
    - A task needs work beyond what the spec and tasks describe, or you are tempted to drop, narrow, defer, or accept exceptions to specified behavior to make it fit → surface the added scope and ask; do not absorb it silently
    - Error or blocker encountered → report and wait for guidance
+   - The batch is ready for CI/device feedback → report the handoff and stop
    - User interrupts
 
-7. **On completion or pause, show status**
+7. **On batch completion or pause, show status**
 
    Display:
-   - Tasks completed this session
+   - The single batch handled this session
    - Overall progress: "N/M tasks complete"
+   - Files changed and local checks actually run
+   - The exact next CI/device validation, expected result, and minimum evidence to return
+   - Whether later implementation is gated on that evidence
    - If all done: suggest archive
    - If paused: explain why and wait for guidance
 
@@ -117,13 +130,10 @@ Implement tasks from an OpenSpec change.
 ```
 ## Implementing: <change-name> (schema: <schema-name>)
 
-Working on task 3/7: <task description>
+Working on batch for task 3/7: <task description>
 [...implementation happening...]
-✓ Task complete
-
-Working on task 4/7: <task description>
-[...implementation happening...]
-✓ Task complete
+✓ Batch ready for CI/device validation
+⏸ Stopping before the next code batch
 ```
 
 **Output On Completion**
@@ -164,12 +174,14 @@ What would you like to do?
 ```
 
 **Guardrails**
-- Keep going through tasks until done or blocked
+- Process exactly one smallest coherent implementation/repair batch per invocation, then stop for feedback
+- Never accumulate a second code batch while the current batch lacks its required CI/device result
+- On failed CI/device feedback, repair only the current batch before progressing
 - Always read context files before starting (from the apply instructions output)
 - If task is ambiguous, pause and ask before implementing
 - If implementation reveals issues, pause and suggest artifact updates
 - Keep code changes minimal and scoped to each task
-- Update task checkbox immediately after completing each task
+- Update an implementation checkbox immediately after its behavior is complete, but keep external validation checkboxes open until actual evidence is reported
 - Pause on errors, blockers, or unclear requirements - don't guess
 - When a task needs work beyond what the spec describes, surface the added scope and pause - never silently narrow, defer, or simplify away specified behavior
 - Only mark a task `- [x]` when its specified behavior is fully implemented, not when it is partially done or deferred
