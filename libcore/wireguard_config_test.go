@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/sagernet/sing-box/adapter/service"
-	"github.com/sagernet/sing-box/box"
+	box "github.com/sagernet/sing-box"
 	"github.com/sagernet/sing-box/option"
+	"github.com/sagernet/sing/service"
 )
 
 const wireGuardEndpointConfig = `{
