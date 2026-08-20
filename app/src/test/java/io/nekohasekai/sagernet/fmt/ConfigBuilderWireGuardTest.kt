@@ -69,6 +69,7 @@ class ConfigBuilderWireGuardTest {
         route = RouteOptions().apply { final_ = MAIN_TAG }
         outbounds = mutableListOf(
             buildSingBoxEndpointWireGuardBean(WireGuardBean().apply {
+                initializeDefaultValues()
                 serverAddress = "198.51.100.10"
                 serverPort = 51820
                 localAddress = "10.0.0.2/32, fd00::2/128"
