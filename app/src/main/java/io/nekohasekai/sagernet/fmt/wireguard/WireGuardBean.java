@@ -18,6 +18,8 @@ public class WireGuardBean extends AbstractBean {
     public String peerPreSharedKey;
     public Integer mtu;
     public String reserved;
+    public Integer listenPort;
+    public Integer persistentKeepaliveInterval;
 
     @Override
     public void initializeDefaultValues() {
@@ -28,11 +30,13 @@ public class WireGuardBean extends AbstractBean {
         if (peerPreSharedKey == null) peerPreSharedKey = "";
         if (mtu == null) mtu = 1420;
         if (reserved == null) reserved = "";
+        if (listenPort == null) listenPort = 0;
+        if (persistentKeepaliveInterval == null) persistentKeepaliveInterval = 0;
     }
 
     @Override
     public void serialize(ByteBufferOutput output) {
-        output.writeInt(2);
+        output.writeInt(3);
         super.serialize(output);
         output.writeString(localAddress);
         output.writeString(privateKey);
@@ -40,6 +44,8 @@ public class WireGuardBean extends AbstractBean {
         output.writeString(peerPreSharedKey);
         output.writeInt(mtu);
         output.writeString(reserved);
+        output.writeInt(listenPort);
+        output.writeInt(persistentKeepaliveInterval);
     }
 
     @Override
@@ -52,6 +58,13 @@ public class WireGuardBean extends AbstractBean {
         peerPreSharedKey = input.readString();
         mtu = input.readInt();
         reserved = input.readString();
+        if (version >= 3) {
+            listenPort = input.readInt();
+            persistentKeepaliveInterval = input.readInt();
+        } else {
+            listenPort = 0;
+            persistentKeepaliveInterval = 0;
+        }
     }
 
     @Override

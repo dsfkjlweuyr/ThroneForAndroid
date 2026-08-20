@@ -111,6 +111,8 @@ public class SingBoxOptions {
 
         public List<Inbound> inbounds;
 
+        public List<Endpoint> endpoints;
+
         public List<SingBoxOption> outbounds;
 
         public RouteOptions route;
@@ -170,6 +172,8 @@ public class SingBoxOptions {
         public DNSOptions dns;
 
         public NTPOptions ntp;
+
+        public List<Endpoint> endpoints;
 
         public List<Inbound> inbounds;
 
@@ -231,7 +235,7 @@ public class SingBoxOptions {
 
         // Generate note: option type:  public Boolean UDPFragmentDefault;
 
-        public Long udp_timeout;
+        public String udp_timeout;
 
         public Boolean proxy_protocol;
 
@@ -882,6 +886,28 @@ public class SingBoxOptions {
 
     }
 
+    public static class Endpoint extends SingBoxOption {
+
+        public String type;
+
+        public String tag;
+
+    }
+
+    public static class DomainResolveOptions extends SingBoxOption {
+
+        public String server;
+
+        public String strategy;
+
+        public Boolean disable_cache;
+
+        public Integer rewrite_ttl;
+
+        public String client_subnet;
+
+    }
+
     public static class Fragment extends SingBoxOption {
 
         public String length;
@@ -899,13 +925,17 @@ public class SingBoxOptions {
 
         public String inet6_bind_address;
 
+        public Boolean bind_address_no_port;
+
         public String protect_path;
 
         public Integer routing_mark;
 
         public Boolean reuse_addr;
 
-        public Long connect_timeout;
+        public String netns;
+
+        public String connect_timeout;
 
         public Boolean tcp_fast_open;
 
@@ -2739,6 +2769,7 @@ public class SingBoxOptions {
 
     }
 
+    // Legacy WireGuard outbound options; retained for old JSON compatibility/diagnostics only.
     public static class WireGuardOutboundOptions extends SingBoxOption {
 
         // Generate note: nested type DialerOptions
@@ -2807,6 +2838,7 @@ public class SingBoxOptions {
 
     public static class WireGuardPeer extends SingBoxOption {
 
+        // Legacy WireGuard outbound peer; retained for old JSON compatibility only.
         // Generate note: nested type ServerOptions
         public String server;
 
@@ -2823,6 +2855,92 @@ public class SingBoxOptions {
 
         // Generate note: Base64 String
         public String reserved;
+
+    }
+
+    public static class Endpoint_WireGuardPeer extends SingBoxOption {
+
+        public String address;
+
+        public Integer port;
+
+        public String public_key;
+
+        public String pre_shared_key;
+
+        // Generate note: Listable
+        public List<String> allowed_ips;
+
+        public Integer persistent_keepalive_interval;
+
+        // Generate note: Base64 String
+        public String reserved;
+
+    }
+
+    public static class Endpoint_WireGuardOptions extends Endpoint {
+
+        public Boolean system;
+
+        public String name;
+
+        public Integer mtu;
+
+        // Generate note: Listable
+        public List<String> address;
+
+        public String private_key;
+
+        public Integer listen_port;
+
+        public List<Endpoint_WireGuardPeer> peers;
+
+        public Long udp_timeout;
+
+        public Integer workers;
+
+        // Generate note: nested type DialerOptions
+        public String detour;
+
+        public String bind_interface;
+
+        public String inet4_bind_address;
+
+        public String inet6_bind_address;
+
+        public String protect_path;
+
+        public Integer routing_mark;
+
+        public Boolean reuse_addr;
+
+        public Long connect_timeout;
+
+        public Boolean tcp_fast_open;
+
+        public Boolean tcp_multi_path;
+
+        public Boolean disable_tcp_keep_alive;
+
+        public String tcp_keep_alive;
+
+        public String tcp_keep_alive_interval;
+
+        public Boolean udp_fragment;
+
+        public DomainResolveOptions domain_resolver;
+
+        public String network_strategy;
+
+        // Generate note: Listable
+        public List<String> network_type;
+
+        // Generate note: Listable
+        public List<String> fallback_network_type;
+
+        public String fallback_delay;
+
+        // End of public DialerOptions ;
 
     }
 
@@ -3877,6 +3995,7 @@ public class SingBoxOptions {
 
     }
 
+    // Legacy WireGuard outbound options; product builders must use Endpoint_WireGuardOptions.
     public static class Outbound_WireGuardOptions extends Outbound {
 
         // Generate note: nested type DialerOptions

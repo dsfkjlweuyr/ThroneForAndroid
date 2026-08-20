@@ -12,6 +12,40 @@ husi 的现行方案提供了可移植的最小闭环：
 
 T4A 与 husi 的配置对象技术不同（Java options + Gson hack map 对比 Kotlin serialization/map），因此移植应采用其结构与语义，而不是逐文件复制。实施期不能在本地构建 Go/Android；每一批次必须由 GitHub Actions 或真机结果闭环后再继续。
 
+### sing-box v1.13.16 契约基线
+
+以下结论以 `nb4a.properties` 固定的 `SINGBOX_VERSION=v1.13.16` 对应官方 tag 为准；husi 只用于交叉核对 Android 映射方式。官方 `option/options.go` 将根 `endpoints` 声明为可省略的 `[]Endpoint`。每个 endpoint 由必填字符串 `type`、可选字符串 `tag` 和按类型扁平合并的 options 组成。
+
+v1.13.16 的 `WireGuardEndpointOptions` 自有字段如下；嵌入的通用 `DialerOptions` 保持项目现有 options 表达，不在本次 WireGuard 专用模型中重复定义：
+
+| JSON 字段 | 官方 Go 类型 | JSON/省略语义 |
+| --- | --- | --- |
+| `system` | `bool` | 可选，零值省略 |
+| `name` | `string` | 可选，空值省略 |
+| `mtu` | `uint32` | 可选，零值省略；官方默认 1408 |
+| `address` | `badoption.Listable[netip.Prefix]` | 必填；单个字符串或字符串列表 |
+| `private_key` | `string` | 必填 |
+| `listen_port` | `uint16` | 可选，零值省略 |
+| `peers` | `[]WireGuardPeer` | 结构体标记为可省略，运行语义要求至少一个 peer |
+| `udp_timeout` | `badoption.Duration` | 可选时长字符串，零值省略 |
+| `workers` | `int` | 可选，零值省略 |
+
+v1.13.16 的 `WireGuardPeer` 字段如下：
+
+| JSON 字段 | 官方 Go 类型 | JSON/省略语义 |
+| --- | --- | --- |
+| `address` | `string` | 可选字符串；T4A 节点映射服务器地址 |
+| `port` | `uint16` | 可选，零值省略；T4A 节点映射服务器端口 |
+| `public_key` | `string` | 结构体标记为可省略，运行语义必填 |
+| `pre_shared_key` | `string` | 可选，空值省略 |
+| `allowed_ips` | `badoption.Listable[netip.Prefix]` | 结构体标记为可省略，运行语义必填；T4A 生成双栈全流量列表 |
+| `persistent_keepalive_interval` | `uint16` | 可选秒数，零值省略 |
+| `reserved` | `[]uint8` | 可选字节序列；官方文档展示三字节数字列表，Go JSON 对字节切片也兼容 base64 字符串 |
+
+固定版本文档与源码不包含 sing-box 1.14 新增的 `udp_mapping`、`udp_filtering`、`udp_nat_max`，因此不得从较新的 husi 生成模型照搬这些字段。官方 `include/wireguard.go` 受 `with_wireguard` build tag 控制，并通过 `wireguard.RegisterEndpoint(registry)` 注册；T4A 的 `libcore/box_include.go` 已直接执行相同注册，故本变更不需要新增 Go 协议实现或 registry 分支。
+
+T4A 当前 `WireGuardBean` 的 Kryo 写入版本为 2，只持久化 `localAddress`、`privateKey`、`peerPublicKey`、`peerPreSharedKey`、`mtu` 与 `reserved`，确认缺少 `listenPort` 和 `persistentKeepaliveInterval`。后续实现必须将 Bean 版本递增为 3，仅在既有布局尾部依次追加这两个整数，并仅在读取 `version >= 3` 时消费它们；读取版本 2 及更早数据时两个字段保持默认值 0。不得采用 husi 的版本号含义直接覆盖 T4A 自有布局。
+
 ## Goals / Non-Goals
 
 **Goals:**

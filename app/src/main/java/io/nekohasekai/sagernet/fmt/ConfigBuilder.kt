@@ -29,7 +29,7 @@ import io.nekohasekai.sagernet.fmt.shadowsocksr.buildSingBoxOutboundShadowsocksR
 import io.nekohasekai.sagernet.fmt.snell.SnellBean
 import io.nekohasekai.sagernet.fmt.snell.buildSingBoxOutboundSnellBean
 import io.nekohasekai.sagernet.fmt.wireguard.WireGuardBean
-import io.nekohasekai.sagernet.fmt.wireguard.buildSingBoxOutboundWireguardBean
+import io.nekohasekai.sagernet.fmt.wireguard.buildSingBoxEndpointWireGuardBean
 import io.nekohasekai.sagernet.ktx.Logs
 import io.nekohasekai.sagernet.ktx.isIpAddress
 import io.nekohasekai.sagernet.ktx.mkPort
@@ -504,7 +504,7 @@ fun buildConfig(
                             buildSingBoxOutboundShadowsocksRBean(bean)
 
                         is WireGuardBean ->
-                            buildSingBoxOutboundWireguardBean(bean)
+                            buildSingBoxEndpointWireGuardBean(bean)
 
                         is SSHBean ->
                             buildSingBoxOutboundSSHBean(bean)
