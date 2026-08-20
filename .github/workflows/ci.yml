@@ -38,7 +38,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           ./run lib core
-          (cd libcore && go test . -run '^TestWireGuard(SingleEndpointConfig|LegacyOutboundRejected)$' -count=1 -v)
+          (cd libcore && go test . -tags='with_conntrack,with_gvisor,with_quic,with_wireguard,with_utls,with_clash_api' -run '^TestWireGuard(SingleEndpointConfig|LegacyOutboundRejected)$' -count=1 -v)
       - name: Verify LibCore AAR
         run: |
           test -s app/libs/libcore.aar
