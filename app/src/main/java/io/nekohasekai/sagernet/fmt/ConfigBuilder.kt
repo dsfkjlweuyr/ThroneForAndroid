@@ -59,6 +59,88 @@ const val TAG_DNS_HOSTS = "dns-hosts"
 
 const val LOCALHOST = "127.0.0.1"
 
+// Only types backed by the target sing-box endpoint registry belong here. Keeping this
+// whitelist explicit prevents a user-supplied legacy/custom outbound from being silently
+// reinterpreted as an endpoint.
+private val ENDPOINT_TYPES = setOf("wireguard")
+
+private fun SingBoxOption.isGeneratedEndpoint(): Boolean {
+    return this is Endpoint && type in ENDPOINT_TYPES
+}
+
+private fun endpointTag(value: Any?): String? {
+    return (value as? Map<*, *>)?.get("tag")?.toString()?.takeIf { it.isNotBlank() }
+}
+
+private fun mergeEndpointList(
+    existing: List<*>, incoming: List<*>, prependNew: Boolean = false
+): MutableList<Any?> {
+    val result = existing.toMutableList()
+    val additions = mutableListOf<Any?>()
+
+    incoming.forEach { endpoint ->
+        val tag = endpointTag(endpoint)
+        val existingIndex = tag?.let { candidate ->
+            result.indexOfFirst { endpointTag(it) == candidate }
+        } ?: -1
+        val additionIndex = tag?.let { candidate ->
+            additions.indexOfFirst { endpointTag(it) == candidate }
+        } ?: -1
+
+        when {
+            existingIndex >= 0 -> result[existingIndex] = endpoint
+            additionIndex >= 0 -> additions[additionIndex] = endpoint
+            else -> additions.add(endpoint)
+        }
+    }
+
+    if (prependNew) result.addAll(0, additions) else result.addAll(additions)
+    return result
+}
+
+@Suppress("UNCHECKED_CAST")
+private fun mergeRootConfig(dst: MutableMap<String, Any?>, json: String) {
+    if (json.isBlank()) return
+    val source = gson.fromJson(json, dst.javaClass) as? Map<String, Any?> ?: return
+    val remaining = source.toMutableMap()
+
+    // Root custom config precedence is automatic < global < selected profile. For endpoints,
+    // a later non-empty tag replaces the earlier object in place; distinct/untagged objects
+    // coexist. The existing +key/key+ list extension syntax remains prepend/append respectively.
+    val replacement = remaining.remove("endpoints")
+    val prepended = remaining.remove("+endpoints")
+    val appended = remaining.remove("endpoints+")
+    Util.mergeMap(dst, remaining)
+
+    fun merge(value: Any?, prependNew: Boolean = false) {
+        if (value !is List<*>) {
+            if (value != null) dst["endpoints"] = value
+            return
+        }
+        val current = dst["endpoints"] as? List<*> ?: emptyList<Any?>()
+        dst["endpoints"] = mergeEndpointList(current, value, prependNew)
+    }
+
+    merge(replacement)
+    merge(prepended, prependNew = true)
+    merge(appended)
+}
+
+internal fun finalizeRootConfig(
+    options: MyOptions,
+    globalCustomConfig: String = "",
+    profileCustomConfig: String = "",
+): MutableMap<String, Any?> {
+    val generatedEndpoints = options.outbounds.orEmpty().filter { it.isGeneratedEndpoint() }
+    options.endpoints = options.endpoints.orEmpty() + generatedEndpoints.map { it as Endpoint }
+    options.outbounds = options.outbounds.orEmpty().filterNot { it.isGeneratedEndpoint() }
+
+    val configMap = options.asMap()
+    mergeRootConfig(configMap, globalCustomConfig)
+    mergeRootConfig(configMap, profileCustomConfig)
+    return configMap
+}
+
 class ConfigBuildResult(
     var config: String,
     var externalIndex: List<IndexEntity>,
@@ -330,6 +412,7 @@ fun buildConfig(
             })
         }
 
+        endpoints = mutableListOf()
         outbounds = mutableListOf()
 
         // init routing object
@@ -1096,10 +1179,12 @@ fun buildConfig(
             }
         }
 
-        if (!forTest) _hack_custom_config = DataStore.globalCustomConfig
-    }.let {
-        val configMap = it.asMap()
-        Util.mergeJSON(configMap, proxy.requireBean().customConfigJson)
+    }.let { options ->
+        val configMap = finalizeRootConfig(
+            options,
+            globalCustomConfig = if (forTest) "" else DataStore.globalCustomConfig,
+            profileCustomConfig = proxy.requireBean().customConfigJson,
+        )
         ConfigBuildResult(
             gson.toJson(configMap),
             externalIndexMap,

@@ -3,12 +3,12 @@
 - [x] 1.1 对照 `nb4a.properties` 的 sing-box v1.13.16 官方源码/JSON schema，记录 WireGuard endpoint、peer、根 `endpoints` 和 endpoint registry 的准确字段与类型；同时核对 T4A WireGuardBean 的 Kryo 版本，只有缺失字段时才采用追加字段的兼容升级。
 - [x] 1.2 在 `SingBoxOptions.java` 增加根 endpoints、Endpoint 基类及 v1.13.16 WireGuard endpoint/peer options，并在 WireGuard 格式模块实现 endpoint builder、可选字段省略和 reserved 三字节列表/base64 兼容转换；保留 legacy outbound options 但移除产品 builder 对它的调用。
 - [x] 1.3 增加 JVM 单元测试，覆盖完整字段、双栈 allowed_ips、零值/空值省略、reserved 两种表示以及 Bean 旧版本反序列化（如本批修改 Bean）；fixture 必须使用无生产价值的测试密钥且失败输出不得泄露完整私钥/PSK。
-- [ ] 1.4 提交本批至 GitHub Actions `CI / Build OSS APK`（其依赖 `CI / Native Build (LibCore)`）；预期两个 job 均成功且目标 WireGuard 单测通过，回传 Actions run URL、失败/成功测试摘要和 APK 编译成功记录。收到该证据前不得开始第 2 批。
+- [x] 1.4 提交本批至 GitHub Actions `CI / Build OSS APK`（其依赖 `CI / Native Build (LibCore)`）；预期两个 job 均成功且目标 WireGuard 单测通过，回传 Actions run URL、失败/成功测试摘要和 APK 编译成功记录。收到该证据前不得开始第 2 批。
 
 ## 2. 单节点 endpoint 配置拓扑
 
-- [ ] 2.1 在根配置和序列化模型中接入 `endpoints`，实现 endpoint 类型白名单与构建后分区，使一个 WireGuard 主节点进入 endpoints、保留原 tag，并从 outbounds 消失；明确自动配置与用户自定义 endpoints 的 merge 顺序和同 tag 行为。
-- [ ] 2.2 增加配置构建测试，断言单 WireGuard 主节点的最终 JSON、主路由 tag、自定义 endpoint 共存结果，以及 legacy WireGuard outbound/stub 不会被产品生成配置触发；加入目标版本可执行的 libcore 配置检查入口或测试。
+- [x] 2.1 在根配置和序列化模型中接入 `endpoints`，实现 endpoint 类型白名单与构建后分区，使一个 WireGuard 主节点进入 endpoints、保留原 tag，并从 outbounds 消失；明确自动配置与用户自定义 endpoints 的 merge 顺序和同 tag 行为。
+- [x] 2.2 增加配置构建测试，断言单 WireGuard 主节点的最终 JSON、主路由 tag、自定义 endpoint 共存结果，以及 legacy WireGuard outbound/stub 不会被产品生成配置触发；加入目标版本可执行的 libcore 配置检查入口或测试。
 - [ ] 2.3 提交本批至 GitHub Actions `CI / Native Build (LibCore)` 与 `CI / Build OSS APK`；预期生成的单节点 JSON通过 libcore 配置检查、两个 job 成功且不出现 WireGuard outbound removed 错误，回传 run URL、脱敏生成结构与配置检查日志。收到证据前不得开始第 3 批。
 
 ## 3. Selector、URLTest 与链式引用
