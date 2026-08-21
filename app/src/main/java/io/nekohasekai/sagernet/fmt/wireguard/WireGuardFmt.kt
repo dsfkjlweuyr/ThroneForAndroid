@@ -13,7 +13,10 @@ private const val BASE64_ALPHABET =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
 fun parseWireGuardConfig(conf: String): List<WireGuardBean> {
-    val ini = Ini(StringReader(conf))
+    val ini = Ini().apply {
+        config.isMultiSection = true
+        load(StringReader(conf))
+    }
     val iface = ini["Interface"] ?: error("Missing 'Interface' selection")
     val localAddresses = iface.getAll("Address")
         ?.flatMap { value -> value.split(',') }
