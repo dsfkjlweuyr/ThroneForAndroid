@@ -152,7 +152,7 @@ private fun JsonObject.reservedValue(): String? {
             element.takeIf(JsonElement::isJsonPrimitive)?.asJsonPrimitive?.asString?.trim()
         }.joinToString(", ")
         else -> null
-    }.takeIf { it.isNotEmpty() }
+    }?.takeIf { it.isNotEmpty() }
 }
 
 fun genReserved(anyStr: String): String {
