@@ -91,7 +91,7 @@ class ConfigBuilderWireGuardTest {
     @Test
     fun applicationFacingWireGuardDetoursToNextOutboundInExistingChainOrder() {
         val options = topologyOptions()
-        options.outbounds.single { it.tag == MAIN_TAG }.detourTo(NEXT_TAG)
+        options.outbounds.single { it.asMap()["tag"] == MAIN_TAG }.detourTo(NEXT_TAG)
 
         val config = finalizedTopology(options)
         assertEquals(NEXT_TAG, endpoint(config, MAIN_TAG).get("detour").asString)
@@ -103,7 +103,7 @@ class ConfigBuilderWireGuardTest {
     fun egressFacingWireGuardIsReferencedByPreviousOutbound() {
         val options = topologyOptions()
         options.route.final_ = NEXT_TAG
-        options.outbounds.single { it.tag == NEXT_TAG }.detourTo(MAIN_TAG)
+        options.outbounds.single { it.asMap()["tag"] == NEXT_TAG }.detourTo(MAIN_TAG)
 
         val config = finalizedTopology(options)
         assertEquals(MAIN_TAG, outbound(config, NEXT_TAG).get("detour").asString)
