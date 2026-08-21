@@ -16,6 +16,24 @@ import org.junit.Test
 class ConfigBuilderWireGuardTest {
 
     @Test
+    fun unsetRouteFinalUsesMainWireGuardEndpointTag() {
+        val route = RouteOptions()
+
+        route.ensureMainRouteFinal(MAIN_TAG)
+
+        assertEquals(MAIN_TAG, route.final_)
+    }
+
+    @Test
+    fun explicitRouteFinalIsNotOverwritten() {
+        val route = RouteOptions().apply { final_ = NEXT_TAG }
+
+        route.ensureMainRouteFinal(MAIN_TAG)
+
+        assertEquals(NEXT_TAG, route.final_)
+    }
+
+    @Test
     fun singleWireGuardMainUsesEndpointTagAndCoexistsWithCustomEndpoint() {
         val options = baseOptions()
         val config = gson.toJsonTree(

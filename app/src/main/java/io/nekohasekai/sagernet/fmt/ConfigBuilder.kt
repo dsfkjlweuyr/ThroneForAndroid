@@ -95,6 +95,10 @@ internal fun SingBoxOption.detourTo(nextTag: String) {
     _hack_config_map["detour"] = nextTag
 }
 
+internal fun RouteOptions.ensureMainRouteFinal(mainProxyTag: String) {
+    if (final_.isNullOrBlank()) final_ = mainProxyTag
+}
+
 internal fun buildSelectorOutbound(defaultTag: String?, memberTags: List<String>) =
     Outbound_SelectorOptions().apply {
         type = "selector"
@@ -1235,6 +1239,9 @@ fun buildConfig(
             }
         }
 
+        // Legacy outbounds implicitly used their first item as the default route. Endpoints are
+        // partitioned out of that list, so an unset final would silently fall back to direct.
+        route.ensureMainRouteFinal(mainProxyTag)
         val routeFinalState = when (route.final_) {
             null, "" -> "unset"
             mainProxyTag -> "main"
