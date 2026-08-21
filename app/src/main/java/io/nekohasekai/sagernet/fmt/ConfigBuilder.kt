@@ -623,8 +623,21 @@ fun buildConfig(
                         is ShadowsocksRBean ->
                             buildSingBoxOutboundShadowsocksRBean(bean)
 
-                        is WireGuardBean ->
+                        is WireGuardBean -> {
+                            val endpointMtu = bean.mtu?.takeIf { it > 0 }
+                            val peerAddressFamily = when {
+                                bean.serverAddress?.contains(':') == true -> "ipv6"
+                                bean.serverAddress?.isNotBlank() == true -> "ipv4-or-domain"
+                                else -> "missing"
+                            }
+                            Logs.i(
+                                "WireGuardEndpointTrace profileId=${proxyEntity.id} forTest=$forTest " +
+                                    "endpointMtu=${endpointMtu ?: "default(1408)"} " +
+                                    "tunMtu=${DataStore.mtu} peerAddressFamily=$peerAddressFamily " +
+                                    "peerPort=${bean.serverPort}"
+                            )
                             buildSingBoxEndpointWireGuardBean(bean)
+                        }
 
                         is SSHBean ->
                             buildSingBoxOutboundSSHBean(bean)
