@@ -102,6 +102,18 @@ T4A 当前 `WireGuardBean` 的 Kryo 写入版本为 2，只持久化 `localAddre
 
 选择原因：JSON 结构正确不等于 Android VPN 生命周期中可联网，而直接依赖真机也难定位字段错误。分层门禁可以在每个最小批次快速失败。
 
+### 7. Android 无链式 detour 的 WireGuard endpoint 绕行非空 direct
+
+最终真机验证发现，endpoint/tag、握手和小流量 URLTest 均可用时，Android 默认拨号路径仍可能令浏览器数据面失败并报告 `sendmsg: message too long`。最终实现不修改节点 MTU，而是在拓扑构建及 endpoint 分区完成后，仅为尚无 detour 且未配置正数 `listen_port` 的 WireGuard endpoint 补充 `detour = "direct"`；同时为 direct outbound 设置 `network_strategy = "default"`，避免 sing-box 拒绝绕行到空 direct outbound。已有链式 detour 保持不变。
+
+选择原因：同设备复验确认 detour 方案恢复浏览器/DNS/较大响应数据面，不需要引入 MTU 1280 对照或把 GSO 声明为根因。该处理必须位于最终拓扑阶段，因为纯 WireGuard builder 无法判断 endpoint 是否已被代理链设置 detour；`listen_port` 与 detour 在 sing-box v1.13.16 中冲突，故监听场景不得自动叠加 detour。
+
+### 8. Endpoint 分区后显式固定主路由最终目标
+
+legacy outbound 留在列表中时可依赖首项形成隐式默认目标；WireGuard 被分区到顶层 `endpoints` 后，这一隐式行为会回退到 direct。最终实现因此在未设置自定义 `route.final` 时显式填入所选主代理 tag；已有非空自定义 final 不被覆盖。
+
+选择原因：这是 endpoint 分区暴露的运行语义差异，不是 WireGuard 协议字段差异。显式 final 能让单节点及组场景继续把主流量送往 endpoint，同时保留用户自定义路由最终目标。
+
 ## Risks / Trade-offs
 
 - [T4A 的链算法假定所有节点均为 outbound，endpoint 的 detour/引用方向可能与 legacy outbound 不完全等价] → 第一批先锁定官方 v1.13.16 schema 和最小 builder；拓扑批次为每种支持位置保存生成 JSON，并由配置检查门禁确认后再进入真机。
@@ -110,6 +122,8 @@ T4A 当前 `WireGuardBean` 的 Kryo 写入版本为 2，只持久化 `localAddre
 - [WireGuard 私钥、PSK 等可能进入日志或测试产物] → fixture 使用无生产价值的占位数据，日志与 CI artifact 不输出完整配置中的密钥。
 - [husi 当前分支可能面向不同 sing-box 提交] → husi 只用于架构参照；实施前以 `SINGBOX_VERSION=v1.13.16` 对应官方源码/JSON schema 校验字段和 registry API。
 - [保留 legacy options 会造成“仍支持 outbound”的误解] → 生成器无引用、测试断言 outbounds 不含 WireGuard，注释注明仅为旧输入诊断；后续可独立清理。
+- [Android 默认 WireGuard 拨号路径可通过小流量测试但浏览器数据面失败] → 对无既有 detour 且无正数监听端口的 endpoint 绕行带 `network_strategy = default` 的非空 direct；保持 MTU 和链式 detour，并由真机大响应与切网回归验证。
+- [endpoint 分区移除 outbound 首项后主路由可能隐式回退 direct] → 当 `route.final` 为空时显式设为主代理 tag，并以单元测试覆盖；非空自定义 final 保持不变。
 
 ## Migration Plan
 
@@ -117,11 +131,12 @@ T4A 当前 `WireGuardBean` 的 Kryo 写入版本为 2，只持久化 `localAddre
 2. 接入根 endpoints 与构建后分区，先覆盖单节点输出；CI 执行配置序列化和 libcore 配置检查，确认不触发 legacy stub。
 3. 接入 selector/urltest 与支持的链式拓扑；对每类拓扑执行 CI 配置检查，失败则回滚该批配置构建改动而不继续累积。
 4. 收敛 wg-quick 与 endpoint JSON 导入并验证旧 Bean 读取；运行导入/数据库测试。
-5. 在测试 WireGuard 服务上进行真机连接：启动 VPN、完成握手、访问 IPv4/IPv6（服务具备时）、解析 DNS、切换网络并重连；保存脱敏日志和成功流量证据。
+5. 在测试 WireGuard 服务上进行真机连接：启动 VPN、完成握手、访问 IPv4/IPv6（服务具备时）、解析 DNS、切换网络并重连；若 Android 默认拨号路径出现数据面错误，则仅对无既有链式 detour 的 endpoint 绕行非空 direct，并保持 MTU 不变；保存脱敏日志和成功流量证据。
 
 回滚时可恢复 Android 的 builder/分区改动；这会回到明确的“WireGuard 已知不可运行”状态，但不会破坏数据库，因为 Bean 的兼容读取布局不回退。若已追加 Bean 字段，旧代码通常可读取既有前缀；发布前仍需以旧版本读取新保存数据的测试确认降级行为。
 
-## Open Questions
+## Resolved Questions
 
-- T4A 现有 CI 中最适合执行最终 sing-box 配置检查的 workflow/job 名称需在实施时从 `.github/workflows` 选择；这不改变测试门禁内容。
-- 真机 WireGuard 测试端是否具备 IPv6 决定 IPv6 流量是强制证据还是记录为环境性跳过；endpoint 始终生成双栈 `allowed_ips`。
+- 最终 CI 使用 Preview Build workflow 中的 `Native Build (LibCore)` 与 `Build OSS APK` job；两者均在最终 run 中成功。
+- Android 数据面故障由无既有链式 detour 的 endpoint 绕行非空 direct 解决；未采用 MTU 1280，也未把 GSO 作为既定根因。
+- endpoint 始终生成双栈 `allowed_ips`；最终验收记录未保留测试服务与设备是否同时具备 IPv6，因此实现审查将 IPv6 记为“证据未留存”，而不虚构成功或环境性跳过。

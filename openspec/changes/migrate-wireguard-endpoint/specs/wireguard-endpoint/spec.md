@@ -85,7 +85,7 @@
 
 ### Requirement: Endpoint 保持代理图引用语义
 
-系统 MUST 保持 WireGuard endpoint 的 tag 可被主路由、selector、urltest 和链式代理引用。若 WireGuard 位于链中，系统 SHALL 使用 sing-box endpoint 支持的引用/绕行语义，且 MUST NOT 重新把它包装成已移除的 WireGuard outbound。
+系统 MUST 保持 WireGuard endpoint 的 tag 可被主路由、selector、urltest 和链式代理引用。若 WireGuard 位于链中，系统 SHALL 使用 sing-box endpoint 支持的引用/绕行语义，且 MUST NOT 重新把它包装成已移除的 WireGuard outbound。endpoint 从 outbound 集合分区后，系统 MUST 显式保持主路由最终目标指向所选主代理 tag，不能回退为 direct。
 
 #### Scenario: WireGuard 作为主节点
 
@@ -100,4 +100,29 @@
 - **WHEN** 配置生成器建立链路关系
 - **THEN** 生成配置保持预期跳序与可解析 tag 引用
 - **AND** 不出现 legacy WireGuard outbound
+
+### Requirement: Android WireGuard endpoint 使用可运行的默认拨号绕行
+
+在 Android 生成配置中，系统 MUST 为尚无链式 detour 且未配置正数监听端口的 WireGuard endpoint 设置到非空 direct outbound 的 detour；该 direct outbound MUST 至少包含 `network_strategy = "default"`。系统 MUST NOT 覆盖已有链式 detour，并 MUST 保持节点 MTU 不变。正数 `listen_port` 与 detour 冲突时，系统 MUST NOT 生成两者并存的无效配置。
+
+#### Scenario: 单节点补充默认 detour
+
+- **GIVEN** WireGuard endpoint 没有已有 detour 且监听端口非正数
+- **WHEN** 配置生成器完成 endpoint 分区
+- **THEN** endpoint 的 detour 指向 direct outbound
+- **AND** direct outbound 包含 `network_strategy = "default"`
+- **AND** endpoint MTU 保持节点原值
+
+#### Scenario: 保留已有链式 detour
+
+- **GIVEN** 代理链已经为 WireGuard endpoint 设置下一跳 detour
+- **WHEN** 配置生成器完成 endpoint 分区
+- **THEN** 系统保留已有 detour
+- **AND** 不以默认 direct detour 覆盖链式跳序
+
+#### Scenario: 避免监听端口冲突
+
+- **GIVEN** WireGuard endpoint 配置了正数 `listen_port`
+- **WHEN** 配置生成器评估默认 detour
+- **THEN** 系统不生成 `listen_port` 与 detour 并存的无效 endpoint
 
