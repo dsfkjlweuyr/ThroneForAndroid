@@ -68,6 +68,43 @@ private fun SingBoxOption.isGeneratedEndpoint(): Boolean {
     return this is Endpoint && type in ENDPOINT_TYPES
 }
 
+internal fun SingBoxOption.detourTo(nextTag: String) {
+    if (this is Endpoint_WireGuardOptions) {
+        val effectiveOptions = asMap()
+        val listenPort = when (val value = effectiveOptions["listen_port"]) {
+            is Number -> value.toInt()
+            else -> value?.toString()?.toIntOrNull() ?: 0
+        }
+        if (listenPort > 0) {
+            val endpointTag = effectiveOptions["tag"]?.toString()?.takeIf { it.isNotBlank() }
+                ?: "<untagged>"
+            throw IllegalArgumentException(
+                "WireGuard endpoint '$endpointTag' cannot detour to '$nextTag' while " +
+                    "listen_port is enabled; set listen_port to 0 or use WireGuard only " +
+                    "in a chain position that does not require another hop."
+            )
+        }
+
+        // sing-box exposes endpoints through OutboundManager, so selectors, URL tests and
+        // other dialers can reference this tag directly. WireGuard also embeds DialerOptions,
+        // allowing its own outbound connection to follow the existing T4A chain direction.
+        detour = nextTag
+        return
+    }
+
+    _hack_config_map["detour"] = nextTag
+}
+
+internal fun buildSelectorOutbound(defaultTag: String?, memberTags: List<String>) =
+    Outbound_SelectorOptions().apply {
+        type = "selector"
+        tag = TAG_PROXY
+        default_ = defaultTag
+        // Endpoint tags are valid outbound references in sing-box 1.13; keep them as direct
+        // group members instead of wrapping WireGuard in a removed outbound.
+        outbounds = memberTags
+    }
+
 private fun endpointTag(value: Any?): String? {
     return (value as? Map<*, *>)?.get("tag")?.toString()?.takeIf { it.isNotBlank() }
 }
@@ -532,7 +569,7 @@ fun buildConfig(
                             outbound = tagOut
                         })
                     } else {
-                        pastOutbound._hack_config_map["detour"] = tagOut
+                        pastOutbound.detourTo(tagOut)
                     }
                 } else {
                     // index == 0 means last profile in chain / not chain
@@ -715,12 +752,7 @@ fun buildConfig(
             list.forEach {
                 tagMap[it.id] = buildChain(it.id, it)
             }
-            outbounds.add(0, Outbound_SelectorOptions().apply {
-                type = "selector"
-                tag = TAG_PROXY
-                default_ = tagMap[proxy.id]
-                outbounds = tagMap.values.toList()
-            })
+            outbounds.add(0, buildSelectorOutbound(tagMap[proxy.id], tagMap.values.toList()))
         } else {
             val mainTag = buildChain(0, proxy)
             tagMap[proxy.id] = mainTag

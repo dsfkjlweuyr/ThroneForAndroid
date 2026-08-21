@@ -9,12 +9,12 @@
 
 - [x] 2.1 在根配置和序列化模型中接入 `endpoints`，实现 endpoint 类型白名单与构建后分区，使一个 WireGuard 主节点进入 endpoints、保留原 tag，并从 outbounds 消失；明确自动配置与用户自定义 endpoints 的 merge 顺序和同 tag 行为。
 - [x] 2.2 增加配置构建测试，断言单 WireGuard 主节点的最终 JSON、主路由 tag、自定义 endpoint 共存结果，以及 legacy WireGuard outbound/stub 不会被产品生成配置触发；加入目标版本可执行的 libcore 配置检查入口或测试。
-- [ ] 2.3 提交本批至 GitHub Actions `CI / Native Build (LibCore)` 与 `CI / Build OSS APK`；预期生成的单节点 JSON通过 libcore 配置检查、两个 job 成功且不出现 WireGuard outbound removed 错误，回传 run URL、脱敏生成结构与配置检查日志。收到证据前不得开始第 3 批。
+- [x] 2.3 提交本批至 GitHub Actions `CI / Native Build (LibCore)` 与 `CI / Build OSS APK`；预期生成的单节点 JSON通过 libcore 配置检查、两个 job 成功且不出现 WireGuard outbound removed 错误，回传 run URL、脱敏生成结构与配置检查日志。收到证据前不得开始第 3 批。
 
 ## 3. Selector、URLTest 与链式引用
 
-- [ ] 3.1 调整 selector/urltest 及代理链构建，使 WireGuard endpoint tag 可作为主目标和组成员，并按 sing-box endpoint 支持的 detour/引用方向维持 T4A 既有跳序；不以 legacy outbound 包装 endpoint。
-- [ ] 3.2 为 WireGuard 作为 selector 成员、urltest 成员、链首/链尾等实际支持位置分别添加拓扑测试；每个测试断言 tag 可解析、跳序正确、endpoint/outbound 分区正确，并对不受官方 endpoint 语义支持的位置返回明确诊断而非生成无效配置。
+- [x] 3.1 调整 selector/urltest 及代理链构建，使 WireGuard endpoint tag 可作为主目标和组成员，并按 sing-box endpoint 支持的 detour/引用方向维持 T4A 既有跳序；不以 legacy outbound 包装 endpoint。
+- [x] 3.2 为 WireGuard 作为 selector 成员、urltest 成员、链首/链尾等实际支持位置分别添加拓扑测试；每个测试断言 tag 可解析、跳序正确、endpoint/outbound 分区正确，并对不受官方 endpoint 语义支持的位置返回明确诊断而非生成无效配置。
 - [ ] 3.3 提交本批至 GitHub Actions `CI / Native Build (LibCore)` 与 `CI / Build OSS APK`；预期每个拓扑 fixture 均通过 libcore 配置检查且构建成功，回传 run URL、各场景检查矩阵和脱敏错误（若存在明确不支持场景）。收到证据前不得开始第 4 批。
 
 ## 4. wg-quick 与 endpoint JSON 导入
