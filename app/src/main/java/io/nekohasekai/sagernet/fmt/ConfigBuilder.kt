@@ -169,6 +169,10 @@ internal fun finalizeRootConfig(
     profileCustomConfig: String = "",
 ): MutableMap<String, Any?> {
     val generatedEndpoints = options.outbounds.orEmpty().filter { it.isGeneratedEndpoint() }
+    generatedEndpoints
+        .filterIsInstance<Endpoint_WireGuardOptions>()
+        .filter { endpoint -> endpoint.asMap()["detour"]?.toString().isNullOrBlank() }
+        .forEach { endpoint -> endpoint.detourTo(TAG_DIRECT) }
     options.endpoints = options.endpoints.orEmpty() + generatedEndpoints.map { it as Endpoint }
     options.outbounds = options.outbounds.orEmpty().filterNot { it.isGeneratedEndpoint() }
 
@@ -1031,10 +1035,17 @@ fun buildConfig(
             route.rule_set = route.rule_set.distinctBy { it.tag }
         }
 
-        for (freedom in arrayOf(TAG_DIRECT, TAG_BYPASS)) outbounds.add(Outbound().apply {
-            tag = freedom
-            type = "direct"
-        })
+        for (freedom in arrayOf(TAG_DIRECT, TAG_BYPASS)) {
+            outbounds.add(Outbound().apply {
+                tag = freedom
+                type = "direct"
+                if (freedom == TAG_DIRECT) {
+                    // A WireGuard endpoint detour cannot target an empty direct outbound.
+                    // Keep MTU unchanged and switch only the Android dialer path.
+                    _hack_config_map["network_strategy"] = "default"
+                }
+            })
+        }
 
         if (DataStore.enableTLSFragment) {
             val fragmentOutbound = Outbound().apply {

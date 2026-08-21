@@ -34,6 +34,8 @@ class ConfigBuilderWireGuardTest {
         assertTrue(TEST_PRIVATE_KEY == generated.get("private_key").asString)
         assertEquals(TEST_PUBLIC_KEY, generated.getAsJsonArray("peers")
             .single().asJsonObject.get("public_key").asString)
+        assertEquals(1380, generated.get("mtu").asInt)
+        assertEquals(TAG_DIRECT, generated.get("detour").asString)
 
         val custom = endpoints
             .map { it.asJsonObject }
@@ -43,6 +45,7 @@ class ConfigBuilderWireGuardTest {
         val outbounds = config.getAsJsonArray("outbounds")
         assertTrue(outbounds.any { it.asJsonObject.get("tag").asString == TAG_DIRECT })
         assertFalse(outbounds.any { it.asJsonObject.get("type").asString == "wireguard" })
+        assertEquals("default", outbound(config, TAG_DIRECT).get("network_strategy").asString)
         assertEquals(MAIN_TAG, config.getAsJsonObject("route").get("final").asString)
     }
 
@@ -77,6 +80,8 @@ class ConfigBuilderWireGuardTest {
         assertEquals(MAIN_TAG, selector.get("default").asString)
         assertEquals(listOf(MAIN_TAG, NEXT_TAG), selector
             .getAsJsonArray("outbounds").map { it.asString })
+        assertEquals(TAG_DIRECT, endpoint(config, MAIN_TAG).get("detour").asString)
+        assertEquals("default", outbound(config, TAG_DIRECT).get("network_strategy").asString)
         assertTopologyReferencesResolve(config)
     }
 
@@ -85,6 +90,8 @@ class ConfigBuilderWireGuardTest {
         val config = finalizedTopology(topologyOptions())
 
         assertEquals(MAIN_TAG, config.getAsJsonObject("route").get("final").asString)
+        assertEquals(TAG_DIRECT, endpoint(config, MAIN_TAG).get("detour").asString)
+        assertEquals("default", outbound(config, TAG_DIRECT).get("network_strategy").asString)
         assertTopologyReferencesResolve(config)
     }
 
@@ -107,8 +114,8 @@ class ConfigBuilderWireGuardTest {
 
         val config = finalizedTopology(options)
         assertEquals(MAIN_TAG, outbound(config, NEXT_TAG).get("detour").asString)
-        assertFalse(endpoint(config, MAIN_TAG).has("detour"))
-        assertEquals(listOf(NEXT_TAG, MAIN_TAG), chainPath(config))
+        assertEquals(TAG_DIRECT, endpoint(config, MAIN_TAG).get("detour").asString)
+        assertEquals(listOf(NEXT_TAG, MAIN_TAG, TAG_DIRECT), chainPath(config))
         assertTopologyReferencesResolve(config)
     }
 
@@ -124,6 +131,23 @@ class ConfigBuilderWireGuardTest {
             assertTrue(error.message.orEmpty().contains(NEXT_TAG))
             assertTrue(error.message.orEmpty().contains("listen_port"))
             assertFalse(endpoint.asMap().containsKey("detour"))
+        }
+    }
+
+    @Test
+    fun wireGuardWithListenPortRejectsAutomaticDirectDetour() {
+        val options = topologyOptions().apply {
+            outbounds[0] = wireGuardEndpoint(listenPort = 51820)
+        }
+
+        try {
+            finalizeRootConfig(options)
+            fail("Expected WireGuard listen_port and automatic direct detour conflict")
+        } catch (error: IllegalArgumentException) {
+            assertTrue(error.message.orEmpty().contains(MAIN_TAG))
+            assertTrue(error.message.orEmpty().contains(TAG_DIRECT))
+            assertTrue(error.message.orEmpty().contains("listen_port"))
+            assertFalse(options.outbounds.first().asMap().containsKey("detour"))
         }
     }
 
@@ -143,6 +167,7 @@ class ConfigBuilderWireGuardTest {
             Outbound().apply {
                 type = "direct"
                 tag = TAG_DIRECT
+                _hack_config_map["network_strategy"] = "default"
             },
         )
     }
@@ -161,6 +186,7 @@ class ConfigBuilderWireGuardTest {
             Outbound().apply {
                 type = "direct"
                 tag = TAG_DIRECT
+                _hack_config_map["network_strategy"] = "default"
             },
         )
     }
