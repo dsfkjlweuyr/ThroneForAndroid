@@ -613,4 +613,6 @@
     <string name="snell_mode">模式</string>
     <string name="snell_reuse">复用</string>
     <string name="snell_reuse_summary">仅适用于 v4-v6</string>
+    <string name="wireguard_listen_port">监听端口</string>
+    <string name="wireguard_persistent_keepalive">持久保活间隔</string>
 </resources>

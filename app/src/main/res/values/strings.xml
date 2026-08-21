@@ -698,4 +698,6 @@
     <string name="snell_reuse">Reuse</string>
     <string name="snell_reuse_summary">v4-v6 only</string>
 
+    <string name="wireguard_listen_port">Listen port</string>
+    <string name="wireguard_persistent_keepalive">Persistent keepalive interval</string>
 </resources>

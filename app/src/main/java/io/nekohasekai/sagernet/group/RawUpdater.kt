@@ -23,20 +23,21 @@ import io.nekohasekai.sagernet.fmt.v2ray.VMessBean
 import io.nekohasekai.sagernet.fmt.v2ray.isTLS
 import io.nekohasekai.sagernet.fmt.v2ray.setTLS
 import io.nekohasekai.sagernet.fmt.wireguard.WireGuardBean
+import io.nekohasekai.sagernet.fmt.wireguard.parseWireGuardConfig
+import io.nekohasekai.sagernet.fmt.wireguard.parseWireGuardEndpoints
 import io.nekohasekai.sagernet.ktx.*
 import libcore.Libcore
 import moe.matsuri.nb4a.Protocols
 import moe.matsuri.nb4a.proxy.anytls.AnyTLSBean
 import moe.matsuri.nb4a.proxy.config.ConfigBean
+import moe.matsuri.nb4a.utils.JavaUtil
 import moe.matsuri.nb4a.utils.Util
-import org.ini4j.Ini
 import org.json.JSONArray
 import org.json.JSONObject
 import org.json.JSONTokener
 import org.yaml.snakeyaml.TypeDescription
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.error.YAMLException
-import java.io.StringReader
 import androidx.core.net.toUri
 
 @Suppress("EXPERIMENTAL_API_USAGE")
@@ -887,7 +888,7 @@ object RawUpdater : GroupUpdater() {
         } else if (text.contains("[Interface]")) {
             // wireguard
             try {
-                proxies.addAll(parseWireGuard(text).map {
+                proxies.addAll(parseWireGuardConfig(text).map {
                     if (fileName.isNotBlank()) it.name = fileName.removeSuffix(".conf")
                     it
                 })
@@ -927,35 +928,6 @@ object RawUpdater : GroupUpdater() {
         }
     }
 
-    fun parseWireGuard(conf: String): List<WireGuardBean> {
-        val ini = Ini(StringReader(conf))
-        val iface = ini["Interface"] ?: error("Missing 'Interface' selection")
-        val bean = WireGuardBean().applyDefaultValues()
-        val localAddresses = iface.getAll("Address")
-        if (localAddresses.isNullOrEmpty()) error("Empty address in 'Interface' selection")
-        bean.localAddress = localAddresses.flatMap { it.split(",") }.joinToString("\n")
-        bean.privateKey = iface["PrivateKey"]
-        bean.mtu = iface["MTU"]?.toIntOrNull()
-        val peers = ini.getAll("Peer")
-        if (peers.isNullOrEmpty()) error("Missing 'Peer' selections")
-        val beans = mutableListOf<WireGuardBean>()
-        for (peer in peers) {
-            val endpoint = peer["Endpoint"]
-            if (endpoint.isNullOrBlank() || !endpoint.contains(":")) {
-                continue
-            }
-
-            val peerBean = bean.clone()
-            peerBean.serverAddress = endpoint.substringBeforeLast(":")
-            peerBean.serverPort = endpoint.substringAfterLast(":").toIntOrNull() ?: continue
-            peerBean.peerPublicKey = peer["PublicKey"] ?: continue
-            peerBean.peerPreSharedKey = peer["PresharedKey"]
-            beans.add(peerBean.applyDefaultValues())
-        }
-        if (beans.isEmpty()) error("Empty available peer list")
-        return beans
-    }
-
     fun parseJSON(json: Any): List<AbstractBean> {
         val proxies = ArrayList<AbstractBean>()
 
@@ -977,8 +949,10 @@ object RawUpdater : GroupUpdater() {
                     return listOf(json.parseTrojanGo())
                 }
 
-                json.has("outbounds") -> {
-                    return json.getJSONArray("outbounds")
+                json.has("outbounds") || json.has("endpoints") -> {
+                    val outbounds = json.optJSONArray("outbounds")
+                        ?: JSONArray()
+                    return outbounds
                         .filterIsInstance<JSONObject>()
                         .mapNotNull {
                             val ty = it.getStr("type")
@@ -1000,6 +974,11 @@ object RawUpdater : GroupUpdater() {
                                     name = it.getStr("tag")
                                 }
                         }
+                        .plus(runCatching {
+                            parseWireGuardEndpoints(
+                                JavaUtil.gson.fromJson(json.toString(), com.google.gson.JsonObject::class.java)
+                            )
+                        }.getOrDefault(emptyList()))
                 }
 
                 json.has("server") && json.has("server_port") -> {

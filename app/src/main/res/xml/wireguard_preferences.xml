@@ -44,6 +44,18 @@
             app:title="@string/mtu"
             app:useSimpleSummaryProvider="true" />
         <EditTextPreference
+            app:defaultValue="0"
+            app:icon="@drawable/ic_maps_directions_boat"
+            app:key="listenPort"
+            app:title="@string/wireguard_listen_port"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:defaultValue="0"
+            app:icon="@drawable/ic_action_lock_open"
+            app:key="persistentKeepaliveInterval"
+            app:title="@string/wireguard_persistent_keepalive"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
             app:icon="@drawable/ic_baseline_fingerprint_24"
             app:key="reserved"
             app:title="Reserved"

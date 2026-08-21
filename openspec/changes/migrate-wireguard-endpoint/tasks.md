@@ -15,13 +15,13 @@
 
 - [x] 3.1 调整 selector/urltest 及代理链构建，使 WireGuard endpoint tag 可作为主目标和组成员，并按 sing-box endpoint 支持的 detour/引用方向维持 T4A 既有跳序；不以 legacy outbound 包装 endpoint。
 - [x] 3.2 为 WireGuard 作为 selector 成员、urltest 成员、链首/链尾等实际支持位置分别添加拓扑测试；每个测试断言 tag 可解析、跳序正确、endpoint/outbound 分区正确，并对不受官方 endpoint 语义支持的位置返回明确诊断而非生成无效配置。
-- [ ] 3.3 提交本批至 GitHub Actions `CI / Native Build (LibCore)` 与 `CI / Build OSS APK`；预期每个拓扑 fixture 均通过 libcore 配置检查且构建成功，回传 run URL、各场景检查矩阵和脱敏错误（若存在明确不支持场景）。收到证据前不得开始第 4 批。
+- [x] 3.3 提交本批至 GitHub Actions `CI / Native Build (LibCore)` 与 `CI / Build OSS APK`；预期每个拓扑 fixture 均通过 libcore 配置检查且构建成功，回传 run URL、各场景检查矩阵和脱敏错误（若存在明确不支持场景）。收到证据前不得开始第 4 批。
 
 ## 4. wg-quick 与 endpoint JSON 导入
 
-- [ ] 4.1 将 wg-quick 解析收敛到 WireGuard 格式模块并让 RawUpdater 复用，修剪多地址，按有效 peer 拆分节点，并映射 Interface 的私钥、MTU、监听端口及 Peer 的 Endpoint、公钥、PSK、保活和 reserved。
-- [ ] 4.2 扩展 sing-box JSON 导入器遍历根 endpoints，并安全解析 WireGuard endpoint 首个 peer；数字兼容 JSON 数字/字符串，无 peer、错误 peer 类型或缺失必要字段时跳过对象而不崩溃。
-- [ ] 4.3 增加 wg-quick 多 peer、IPv4/IPv6 Endpoint、endpoint JSON 往返、无 peer/错误类型及旧数据库节点重存测试，并确认编辑界面能无损读取和保存迁移字段。
+- [x] 4.1 将 wg-quick 解析收敛到 WireGuard 格式模块并让 RawUpdater 复用，修剪多地址，按有效 peer 拆分节点，并映射 Interface 的私钥、MTU、监听端口及 Peer 的 Endpoint、公钥、PSK、保活和 reserved。
+- [x] 4.2 扩展 sing-box JSON 导入器遍历根 endpoints，并安全解析 WireGuard endpoint 首个 peer；数字兼容 JSON 数字/字符串，无 peer、错误 peer 类型或缺失必要字段时跳过对象而不崩溃。
+- [x] 4.3 增加 wg-quick 多 peer、IPv4/IPv6 Endpoint、endpoint JSON 往返、无 peer/错误类型及旧数据库节点重存测试，并确认编辑界面能无损读取和保存迁移字段。
 - [ ] 4.4 提交本批至 GitHub Actions `CI / Build OSS APK`（连同依赖的 `CI / Native Build (LibCore)`）；预期所有导入与兼容测试、Android 编译成功，回传 run URL、测试数/结果和不含密钥的失败摘要。收到证据前不得开始第 5 批。
 
 ## 5. 真机可运行性与规范收尾
