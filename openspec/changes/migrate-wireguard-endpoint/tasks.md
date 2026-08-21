@@ -22,10 +22,12 @@
 - [x] 4.1 将 wg-quick 解析收敛到 WireGuard 格式模块并让 RawUpdater 复用，修剪多地址，按有效 peer 拆分节点，并映射 Interface 的私钥、MTU、监听端口及 Peer 的 Endpoint、公钥、PSK、保活和 reserved。
 - [x] 4.2 扩展 sing-box JSON 导入器遍历根 endpoints，并安全解析 WireGuard endpoint 首个 peer；数字兼容 JSON 数字/字符串，无 peer、错误 peer 类型或缺失必要字段时跳过对象而不崩溃。
 - [x] 4.3 增加 wg-quick 多 peer、IPv4/IPv6 Endpoint、endpoint JSON 往返、无 peer/错误类型及旧数据库节点重存测试，并确认编辑界面能无损读取和保存迁移字段。
-- [ ] 4.4 提交本批至 GitHub Actions `CI / Build OSS APK`（连同依赖的 `CI / Native Build (LibCore)`）；预期所有导入与兼容测试、Android 编译成功，回传 run URL、测试数/结果和不含密钥的失败摘要。收到证据前不得开始第 5 批。
+- [x] 4.4 提交本批至 GitHub Actions `CI / Build OSS APK`（连同依赖的 `CI / Native Build (LibCore)`）；预期所有导入与兼容测试、Android 编译成功，回传 run URL、测试数/结果和不含密钥的失败摘要。收到证据前不得开始第 5 批。
 
 ## 5. 真机可运行性与规范收尾
 
+- [ ] 5.0.1 修复 Android WireGuard endpoint“URLTest/首页延迟成功但浏览器数据面失败”的阻塞：以 `ROO_WG_REPORT.md` 的证据与对照矩阵为基线，先实现并测试“无既有链式 detour 的 WireGuard endpoint 显式绕行到非空 direct outbound（至少含 `network_strategy = default`）”，不得覆盖已有链式 detour；若该对照失败，再单独评估 MTU 1280，不得把 GSO 当作未经验证的既定根因。
+- [ ] 5.0.2 为 5.0.1 增加单节点、selector/urltest、已有链式 detour 和 `listen_port` 冲突回归测试，提交 `CI / Native Build (LibCore)` 与 `CI / Build OSS APK`，并在同一测试端真机复验 Chrome HTTPS/较大响应、DNS、握手与日志；预期不再出现 `sendmsg: message too long`，回传 run URL、脱敏 `WireGuardEndpointTrace`、浏览器访问结果及错误摘要。收到证据前不得勾选 5.1 或推进 5.2。
 - [ ] 5.1 使用专用测试 WireGuard 服务在 Android 真机验证单节点：导入或创建节点、启动 VPN、确认握手、IPv4 流量与 DNS；服务和设备均支持 IPv6 时同时验证 IPv6，否则记录环境性跳过。证据为设备/API 版本、脱敏握手时间、访问结果和无 legacy stub 的日志片段。
 - [ ] 5.2 在真机验证一个 CI 已确认有效的 selector/urltest 或链式场景，并执行 Wi-Fi/移动网络切换后的重连；预期目标选择/跳序正确、切网后恢复流量且密钥不出现在日志，回传脱敏拓扑、切换时间线和连通性结果。
 - [ ] 5.3 根据最终实现同步本 change 的 delta spec/设计偏差，运行 `openspec validate migrate-wireguard-endpoint --strict`；预期零错误，并将 CI run URL、真机证据摘要及任何有理由的 IPv6 跳过记录附入实现审查说明。
