@@ -1235,6 +1235,17 @@ fun buildConfig(
             }
         }
 
+        val routeFinalState = when (route.final_) {
+            null, "" -> "unset"
+            mainProxyTag -> "main"
+            else -> "other"
+        }
+        Logs.i(
+            "RouteFinalTrace profileId=${proxy.id} forTest=$forTest " +
+                "globalMode=${!forTest && DataStore.globalMode} selector=$buildSelector " +
+                "finalState=$routeFinalState ruleCount=${route.rules.size}"
+        )
+
     }.let { options ->
         val configMap = finalizeRootConfig(
             options,
