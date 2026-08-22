@@ -57,7 +57,7 @@
 
 ## Migration Plan
 
-1. 在共享对话框工具中加入 Context wrapper 解包与定向诊断日志，完成 Android CI 编译门禁。
+1. 在共享对话框工具中加入 Context wrapper 解包与定向诊断日志，进入 Android CI 编译验证阶段。
 2. 在真机上制造规则更新失败，确认日志显示 wrapper 可解析到有效 Activity 且错误对话框出现。
 3. 在失败回调返回前退出页面，确认对话框被安全跳过且无 `ClassCastException`、`BadTokenException` 或崩溃。
 4. 若回归异常，回滚共享工具改动即可；无数据或配置迁移。

@@ -8,7 +8,7 @@ T4A 仍把 WireGuard 节点生成成 sing-box 已在 1.13 移除的 legacy outbo
 - 保留 T4A 现有 WireGuard 数据模型、编辑界面与 wg-quick 配置导入能力，并补齐 endpoint 字段映射：本地地址、私钥、MTU、监听端口、对端地址/端口、公钥、预共享密钥、保活间隔及 reserved。
 - 支持导入 sing-box WireGuard endpoint JSON，并继续兼容已有数据库中的 WireGuardBean 数据。
 - 调整配置构建流程，使 WireGuard endpoint 可以参与单节点、链式代理和 selector/urltest 等既有引用关系，同时不再触发 legacy outbound stub。
-- 补充格式转换、导入与最终配置结构的自动化测试，以及 GitHub Actions 和真机场景的滚动验证门禁。
+- 补充格式转换、导入与最终配置结构的自动化测试，以及 GitHub Actions 和实机 Preview 部署验证。
 - **BREAKING**：T4A 新生成的 WireGuard sing-box JSON 不再包含 legacy `type: wireguard` outbound，而使用 sing-box 1.13 endpoint 结构；这是对已被上游删除格式的有意替换。
 
 ## Capabilities

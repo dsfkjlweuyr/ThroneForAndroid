@@ -100,7 +100,7 @@ T4A 当前 `WireGuardBean` 的 Kryo 写入版本为 2，只持久化 `localAddre
 
 单元测试验证字段/省略/导入/分区；CI 生成至少单节点、selector/urltest、支持链式三类配置并调用项目已有的 libcore 配置检查或启动测试；真机最终验证实际 WireGuard 握手、DNS 与流量。敏感密钥只使用测试 fixture 或 CI secret，日志证据必须脱敏。
 
-选择原因：JSON 结构正确不等于 Android VPN 生命周期中可联网，而直接依赖真机也难定位字段错误。分层门禁可以在每个最小批次快速失败。
+选择原因：JSON 结构正确不等于 Android VPN 生命周期中可联网，而直接依赖真机也难定位字段错误。每个最小批次都设置验证阶段，可以尽早发现问题。
 
 ### 7. Android 无链式 detour 的 WireGuard endpoint 绕行非空 direct
 
@@ -116,7 +116,7 @@ legacy outbound 留在列表中时可依赖首项形成隐式默认目标；Wire
 
 ## Risks / Trade-offs
 
-- [T4A 的链算法假定所有节点均为 outbound，endpoint 的 detour/引用方向可能与 legacy outbound 不完全等价] → 第一批先锁定官方 v1.13.16 schema 和最小 builder；拓扑批次为每种支持位置保存生成 JSON，并由配置检查门禁确认后再进入真机。
+- [T4A 的链算法假定所有节点均为 outbound，endpoint 的 detour/引用方向可能与 legacy outbound 不完全等价] → 第一批先锁定官方 v1.13.16 schema 和最小 builder；拓扑批次为每种支持位置保存生成 JSON，经配置检查验证阶段确认后再进行实机 Preview 部署验证。
 - [按 `type` 分区可能误把用户自定义对象移动到 endpoints] → `isEndpoint` 使用明确白名单，仅包含目标版本确认的 endpoint 类型；未知类型不自动移动。
 - [自定义配置 merge 可能覆盖自动生成的 endpoints] → 明确 merge 顺序并添加同时存在用户 endpoints 与自动 WireGuard endpoint 的测试，按 tag 处理冲突或沿用项目现有覆盖规则。
 - [WireGuard 私钥、PSK 等可能进入日志或测试产物] → fixture 使用无生产价值的占位数据，日志与 CI artifact 不输出完整配置中的密钥。
