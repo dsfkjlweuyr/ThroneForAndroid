@@ -88,23 +88,28 @@ Implement tasks from an OpenSpec change.
    - Remaining tasks overview
    - Dynamic instruction from CLI
 
-6. **Implement exactly one rolling batch, then stop at a feedback gate**
+6. **Implement exactly one rolling batch, then stop at its feedback gate**
 
-   A batch is the smallest coherent change that can be reviewed, reverted, and validated independently. It is normally one pending implementation task, but split an oversized task in the tasks artifact before coding when it contains independently verifiable changes.
+   A batch is the smallest coherent change that can be reviewed, reverted, and validated independently. Determine batch boundaries from the semantic grouping in the tasks artifact, not from each checkbox or decimal task number:
+   - A numbered section/heading that groups implementation, automated tests, submission, and one CI/device gate normally defines one batch.
+   - Child checkboxes such as `1.1`-`1.4` are steps of that batch, not mandatory pause points. Complete all locally actionable implementation and test steps in the group, then submit/trigger the group's validation and stop awaiting its result.
+   - Do not stop after `1.1` merely because `1.2` is a separate checkbox when both are required to produce the same reviewable and testable change. A push or Action run should contain the complete coherent change plus its tests.
+   - If one section actually contains multiple independently reviewable and verifiable behavior changes, split the section in the tasks artifact before coding; do not silently reinterpret arbitrary individual checkboxes as batches.
 
    Before changing code:
    - First reconcile any CI/device result supplied for the earliest unresolved validation gate
    - If that result failed, select only the minimal repair for the current batch; do not advance to later implementation tasks
-   - Otherwise select the first pending implementation, repair, or validation task
-   - If the selected task is an external CI/device validation gate and no result is available, do not guess or edit code; stop and report the validation handoff
+   - Otherwise select the first pending batch and all of its locally actionable child steps through the batch's validation handoff
+   - If the batch has already reached an external CI/device validation gate and no result is available, do not guess or edit code; stop and report the validation handoff
 
    For the selected batch only:
    - Show which batch is being worked on
+   - Complete its grouped implementation, regression-test, local-check, and submission/validation-trigger steps in order; do not pause between child checkboxes solely because their decimal numbers differ
    - Make only the code, spec, and task-artifact changes required for that batch
    - Run only locally available checks permitted by project context
    - Mark an implementation task complete only when its specified implementation behavior is complete
    - Mark a CI/device validation task complete only from actual reported evidence, never from local inference
-   - Stop after this batch or validation gate even if later tasks are clear; never begin a second code batch in the same invocation
+   - Stop when this batch reaches its external feedback gate (or after reconciling that gate's returned result); never begin the next numbered batch in the same invocation
 
    **Pause if:**
    - Task is unclear → ask for clarification
@@ -117,7 +122,7 @@ Implement tasks from an OpenSpec change.
 7. **On batch completion or pause, show status**
 
    Display:
-   - The single batch handled this session
+   - The single semantic batch handled this session, including all child task numbers completed within it
    - Overall progress: "N/M tasks complete"
    - Files changed and local checks actually run
    - The exact next CI/device validation, expected result, and minimum evidence to return
@@ -130,10 +135,10 @@ Implement tasks from an OpenSpec change.
 ```
 ## Implementing: <change-name> (schema: <schema-name>)
 
-Working on batch for task 3/7: <task description>
+Working on batch 1 (tasks 1.1-1.4): <coherent change and validation description>
 [...implementation happening...]
 ✓ Batch ready for CI/device validation
-⏸ Stopping before the next code batch
+⏸ Stopping at the feedback gate before batch 2
 ```
 
 **Output On Completion**
@@ -174,7 +179,9 @@ What would you like to do?
 ```
 
 **Guardrails**
-- Process exactly one smallest coherent implementation/repair batch per invocation, then stop for feedback
+- Process exactly one smallest coherent implementation/repair batch per invocation, then stop at its feedback gate
+- Treat task hierarchy semantically: a grouped range such as `1.1`-`1.4` may be one batch when it collectively represents implementation + tests + CI/device handoff; checkbox boundaries alone are not pause boundaries
+- Finish all locally actionable child steps needed for the batch's reviewable change and tests before pushing or triggering its Action; do not send partial child-step changes to CI merely to pause after every checkbox
 - Never accumulate a second code batch while the current batch lacks its required CI/device result
 - On failed CI/device feedback, repair only the current batch before progressing
 - Always read context files before starting (from the apply instructions output)
