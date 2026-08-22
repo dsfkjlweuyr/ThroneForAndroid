@@ -1,8 +1,8 @@
 ## 1. 共享对话框诊断与修复批次
 
-- [ ] 1.1 在共享对话框工具中加入可测试的 ContextWrapper 链解析，防止自引用 wrapper 循环；为无宿主、finishing、destroyed 与显示异常分别加入不含错误正文的定向日志，以验证主题 wrapper 可解析到页面 Activity 的诊断假设。
-- [ ] 1.2 更新安全显示逻辑，仅在解析到未 finishing/未 destroyed 的 Activity 时显示，并保持现有异常日志作为生命周期竞态的最后防线；不改动规则更新和配置状态调用方的业务流程。
-- [ ] 1.3 补充自动化回归覆盖：主题包装 Context 可解析并显示、无 Activity Context 安全跳过、自引用 wrapper 不循环，以及不可用 Activity 不显示；若现有单元测试环境无法可靠构造 Android 窗口，则保留纯 Context 解析测试，并把显示行为纳入下一真机闸门。
+- [x] 1.1 在共享对话框工具中加入可测试的 ContextWrapper 链解析，防止自引用 wrapper 循环；为无宿主、finishing、destroyed 与显示异常分别加入不含错误正文的定向日志，以验证主题 wrapper 可解析到页面 Activity 的诊断假设。
+- [x] 1.2 更新安全显示逻辑，仅在解析到未 finishing/未 destroyed 的 Activity 时显示，并保持现有异常日志作为生命周期竞态的最后防线；不改动规则更新和配置状态调用方的业务流程。
+- [x] 1.3 补充自动化回归覆盖：主题包装 Context 可解析并显示、无 Activity Context 安全跳过、自引用 wrapper 不循环，以及不可用 Activity 不显示；若现有单元测试环境无法可靠构造 Android 窗口，则保留纯 Context 解析测试，并把显示行为纳入下一真机闸门。
 - [ ] 1.4 提交该最小批次后立即运行 GitHub Actions `CI / Build OSS APK`（执行 `app:testOssDebugUnitTest` 与 `app:assembleOssDebug`）；预期测试及 APK 编译通过，最低回传证据为 workflow/job 链接和失败时的完整 Gradle 错误片段。在结果返回前不继续追加实现改动。
 
 ## 2. 真机行为验证与规范收口
