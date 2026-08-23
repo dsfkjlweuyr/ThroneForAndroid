@@ -6,6 +6,8 @@ require (
 	// v0.1.6签名与 v1.13.16 锁定版一致。
 	github.com/exclavenetwork/sing-juicity v0.1.6
 	github.com/gofrs/uuid/v5 v5.4.0
+	// 与 Throne 2e7182b9ea99947a409fee30f74df83752ab763c 的测速基线一致。
+	github.com/Mahdi-zarei/speedtest-go v1.7.13-0.20260107171856-79c565dfd83a
 	github.com/miekg/dns v1.1.72
 	github.com/oschwald/maxminddb-golang v1.13.1
 	github.com/sagernet/quic-go v0.59.0-sing-box-mod.4

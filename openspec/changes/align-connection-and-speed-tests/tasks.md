@@ -1,9 +1,9 @@
 ## 1. libcore 单节点速度测试与依赖基线
 
-- [ ] 1.1 在 `libcore/go.mod` 固定 Throne 基线使用的 `github.com/Mahdi-zarei/speedtest-go v1.7.13-0.20260107171856-79c565dfd83a`，记录/校验模块来源、许可证与 checksum，并集中定义服务列表主/回退端点及下载/上传 URL 派生规则。
-- [ ] 1.2 在 libcore 实现经指定测试 box/outbound 的下载+上传、仅下载、仅上传与简单下载执行器，遵循 5000 ms 默认超时、8 个单节点内部连接和 `http://cachefly.cachefly.net/1mb.test` 简单下载默认值。
-- [ ] 1.3 增加 gomobile 可绑定的会话 API、采样结果模型和取消入口，结果覆盖速率、字节数、延迟、服务器信息、错误与取消状态，并保证 box、接口 wrapper、fd protect 和网络策略按测试实例隔离。
-- [ ] 1.4 增加 Go 单元测试/可注入 HTTP 服务器测试，验证下载与上传请求方法/URL、简单下载字节计算、模式裁剪、超时、取消、错误传播及指定 outbound dialer 的使用。
+- [x] 1.1 在 `libcore/go.mod` 固定 Throne 基线使用的 `github.com/Mahdi-zarei/speedtest-go v1.7.13-0.20260107171856-79c565dfd83a`，记录/校验模块来源、许可证与 checksum，并集中定义服务列表主/回退端点及下载/上传 URL 派生规则。
+- [x] 1.2 在 libcore 实现经指定测试 box/outbound 的下载+上传、仅下载、仅上传与简单下载执行器，遵循 5000 ms 默认超时、8 个单节点内部连接和 `http://cachefly.cachefly.net/1mb.test` 简单下载默认值。
+- [x] 1.3 增加 gomobile 可绑定的会话 API、采样结果模型和取消入口，结果覆盖速率、字节数、延迟、服务器信息、错误与取消状态，并保证 box、接口 wrapper、fd protect 和网络策略按测试实例隔离。
+- [x] 1.4 增加 Go 单元测试/可注入 HTTP 服务器测试，验证下载与上传请求方法/URL、简单下载字节计算、模式裁剪、超时、取消、错误传播及指定 outbound dialer 的使用。
 - [ ] 1.5 提交本批次并运行 GitHub Actions 的 libcore/AAR 构建及 Go 测试 job；预期 gomobile 绑定成功、依赖校验通过、所有测速测试通过。进入下一批前需回传 workflow run 链接、提交 SHA、相关 job 绿灯截图/日志摘要；本批不要求真机，因为尚无 Android 入口。
 
 ## 2. Android 测试设置与缺省迁移语义
