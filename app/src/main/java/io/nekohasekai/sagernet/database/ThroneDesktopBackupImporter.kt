@@ -4,6 +4,7 @@ import android.database.sqlite.SQLiteDatabase
 import io.nekohasekai.sagernet.GroupType
 import io.nekohasekai.sagernet.IPv6Mode
 import io.nekohasekai.sagernet.Key
+import io.nekohasekai.sagernet.SpeedTestSettings
 import io.nekohasekai.sagernet.TunImplementation
 import io.nekohasekai.sagernet.database.preference.PublicDatabase
 import io.nekohasekai.sagernet.fmt.AbstractBean
@@ -698,7 +699,10 @@ object ThroneDesktopBackupImporter {
 
         s["test_url"]?.takeIf { it.isNotBlank() }?.let { putStr(Key.CONNECTION_TEST_URL, it) }
         s["url_test_timeout_ms"]?.toIntOrNull()?.let { putInt(Key.CONNECTION_TEST_TIMEOUT, it) }
-        s["test_concurrent"]?.toIntOrNull()?.let { putInt("connectionTestConcurrent", it) }
+        s["test_concurrent"]?.toIntOrNull()?.let { putInt(Key.CONNECTION_TEST_CONCURRENT, it) }
+        SpeedTestSettings.desktopBackupUpdates(s).forEach { (key, value) ->
+            putStr(key, value)
+        }
 
         s["skip_cert"]?.toBooleanStrictOrNull()?.let { putBool(Key.GLOBAL_ALLOW_INSECURE, it) }
             ?: s["net_insecure"]?.toBooleanStrictOrNull()?.let { putBool(Key.GLOBAL_ALLOW_INSECURE, it) }

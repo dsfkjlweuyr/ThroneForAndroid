@@ -290,10 +290,27 @@
 
     <PreferenceCategory app:title="@string/cag_misc">
         <moe.matsuri.nb4a.ui.UrlTestPreference
-            app:defaultValue="http://www.gstatic.com/generate_204"
+            app:defaultValue="@string/default_connection_test_url"
             app:icon="@drawable/ic_baseline_cast_connected_24"
             app:key="connectionTestURL"
             app:title="@string/connection_test_url"
+            app:useSimpleSummaryProvider="true" />
+        <moe.matsuri.nb4a.ui.SimpleMenuPreference
+            app:defaultValue="@string/default_speed_test_mode"
+            app:entries="@array/speed_test_modes"
+            app:entryValues="@array/speed_test_mode_values"
+            app:key="speedTestMode"
+            app:title="@string/speed_test_mode"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:defaultValue="@string/default_speed_test_timeout_ms"
+            app:key="speedTestTimeoutMs"
+            app:title="@string/speed_test_timeout_ms"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            app:defaultValue="@string/default_simple_download_url"
+            app:key="simpleDownloadURL"
+            app:title="@string/simple_download_url"
             app:useSimpleSummaryProvider="true" />
         <SwitchPreference
             app:icon="@drawable/baseline_construction_24"

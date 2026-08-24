@@ -2,10 +2,11 @@ package io.nekohasekai.sagernet.database
 
 import android.os.Binder
 import androidx.preference.PreferenceDataStore
-import io.nekohasekai.sagernet.CONNECTION_TEST_URL
 import io.nekohasekai.sagernet.GroupType
 import io.nekohasekai.sagernet.IPv6Mode
 import io.nekohasekai.sagernet.Key
+import io.nekohasekai.sagernet.R
+import io.nekohasekai.sagernet.SagerNet
 import io.nekohasekai.sagernet.TunImplementation
 import io.nekohasekai.sagernet.bg.BaseService
 import io.nekohasekai.sagernet.bg.VpnService
@@ -190,9 +191,28 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var httpProxyBypass by configurationStore.string(Key.HTTP_PROXY_BYPASS) { "" }
     var dnsHosts by configurationStore.string(Key.DNS_HOSTS) { "" }
     var strictRoute by configurationStore.boolean(Key.STRICT_ROUTE) { true }
-    var connectionTestURL by configurationStore.string(Key.CONNECTION_TEST_URL) { CONNECTION_TEST_URL }
-    var connectionTestConcurrent by configurationStore.int("connectionTestConcurrent") { 5 }
+    var connectionTestURL by configurationStore.string(Key.CONNECTION_TEST_URL) {
+        SagerNet.application.getString(R.string.default_connection_test_url)
+    }
+    var connectionTestConcurrent by configurationStore.int(Key.CONNECTION_TEST_CONCURRENT) {
+        SagerNet.application.getString(R.string.default_connection_test_concurrent).toInt()
+    }
     var connectionTestTimeout by configurationStore.int(Key.CONNECTION_TEST_TIMEOUT) { 3000 }
+    var speedTestMode by configurationStore.string(Key.SPEED_TEST_MODE) {
+        SagerNet.application.getString(R.string.default_speed_test_mode)
+    }
+    var speedTestTimeoutMs by configurationStore.stringToInt(Key.SPEED_TEST_TIMEOUT_MS) {
+        SagerNet.application.getString(R.string.default_speed_test_timeout_ms).toInt()
+    }
+    var speedTestServerListURL by configurationStore.string(Key.SPEED_TEST_SERVER_LIST_URL) {
+        SagerNet.application.getString(R.string.default_speed_test_server_list_url)
+    }
+    var speedTestFallbackServerListURL by configurationStore.string(Key.SPEED_TEST_FALLBACK_SERVER_LIST_URL) {
+        SagerNet.application.getString(R.string.default_speed_test_fallback_server_list_url)
+    }
+    var simpleDownloadURL by configurationStore.string(Key.SIMPLE_DOWNLOAD_URL) {
+        SagerNet.application.getString(R.string.default_simple_download_url)
+    }
     var alwaysShowAddress by configurationStore.boolean(Key.ALWAYS_SHOW_ADDRESS)
 
     var tunImplementation by configurationStore.stringToInt(Key.TUN_IMPLEMENTATION) { TunImplementation.GVISOR }

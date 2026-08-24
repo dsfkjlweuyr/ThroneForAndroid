@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shared by preference XML and DataStore missing-key fallbacks. -->
+    <string name="default_connection_test_url" translatable="false">http://cp.cloudflare.com/</string>
+    <string name="default_connection_test_concurrent" translatable="false">10</string>
+    <string name="default_speed_test_mode" translatable="false">download_upload</string>
+    <string name="default_speed_test_timeout_ms" translatable="false">5000</string>
+    <string name="default_speed_test_server_list_url" translatable="false">https://www.speedtest.net/api/js/servers</string>
+    <string name="default_speed_test_fallback_server_list_url" translatable="false">https://www.speedtest.net/speedtest-servers-static.php</string>
+    <string name="default_simple_download_url" translatable="false">http://cachefly.cachefly.net/1mb.test</string>
+</resources>

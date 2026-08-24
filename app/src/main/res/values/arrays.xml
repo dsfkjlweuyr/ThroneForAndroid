@@ -48,6 +48,19 @@
         <item>4</item>
     </string-array>
 
+    <string-array name="speed_test_modes">
+        <item>@string/speed_test_mode_download_upload</item>
+        <item>@string/speed_test_mode_download</item>
+        <item>@string/speed_test_mode_upload</item>
+        <item>@string/speed_test_mode_simple_download</item>
+    </string-array>
+    <string-array name="speed_test_mode_values" translatable="false">
+        <item>download_upload</item>
+        <item>download</item>
+        <item>upload</item>
+        <item>simple_download</item>
+    </string-array>
+
     <string-array name="bypass_private_route">
         <item>1.0.0.0/8</item>
         <item>2.0.0.0/7</item>
