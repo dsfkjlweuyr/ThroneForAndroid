@@ -14,8 +14,8 @@ class SpeedTestQueueRunnerTest {
         val events = mutableListOf<String>()
         var active = 0
         var maximumActive = 0
-        val runner = SpeedTestQueueRunner(
-            sessionFactory = { profile ->
+        val runner = SpeedTestQueueRunner<Long>(
+            sessionFactory = { profile: Long ->
                 fakeSession(
                     run = { onSample ->
                         active++
@@ -31,7 +31,9 @@ class SpeedTestQueueRunnerTest {
                     },
                 )
             },
-            failureSnapshot = { profile, error -> snapshot(profile, true, error.message.orEmpty()) },
+            failureSnapshot = { profile: Long, error: Exception ->
+                snapshot(profile, true, error.message.orEmpty())
+            },
         )
 
         val results = runner.run(profiles) { _, _, _ -> }
