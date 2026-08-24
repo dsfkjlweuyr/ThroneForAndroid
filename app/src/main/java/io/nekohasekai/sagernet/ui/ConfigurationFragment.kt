@@ -51,6 +51,9 @@ import io.nekohasekai.sagernet.R
 import io.nekohasekai.sagernet.SagerNet
 import io.nekohasekai.sagernet.aidl.TrafficData
 import io.nekohasekai.sagernet.bg.BaseService
+import io.nekohasekai.sagernet.bg.proto.AndroidSpeedTestSession
+import io.nekohasekai.sagernet.bg.proto.SpeedTestQueueRunner
+import io.nekohasekai.sagernet.bg.proto.SpeedTestSnapshot
 import io.nekohasekai.sagernet.bg.proto.UrlTest
 import io.nekohasekai.sagernet.database.DataStore
 import io.nekohasekai.sagernet.database.GroupManager
@@ -172,6 +175,11 @@ class ConfigurationFragment @JvmOverloads constructor(
     private val profileStateRequests = Channel<Long>(Channel.CONFLATED)
     private val profileStateGeneration = AtomicLong()
     private val profileStateInitialized = CompletableDeferred<Unit>()
+    private var speedTestJob: Job? = null
+    private var speedTestRunner: SpeedTestQueueRunner<ProxyEntity>? = null
+    private var speedTestDialog: AlertDialog? = null
+    private var speedTestNotification: ConnectionTestNotification? = null
+    private var speedTestHidden = false
 
     fun refreshProfileState() {
         lifecycleScope.launch(Dispatchers.Main.immediate) {
@@ -420,6 +428,18 @@ class ConfigurationFragment @JvmOverloads constructor(
     }
 
     override fun onDestroy() {
+        if (speedTestJob != null) {
+            speedTestRunner?.cancel()
+            speedTestJob?.cancel()
+            speedTestNotification?.updateNotification(0, 0, true)
+            speedTestNotification = null
+            speedTestDialog?.dismiss()
+            speedTestDialog = null
+            speedTestHidden = false
+            speedTestRunner = null
+            speedTestJob = null
+            DataStore.runningTest = false
+        }
         DataStore.profileCacheStore.unregisterChangeListener(this)
 
         if (::adapter.isInitialized) {
@@ -428,6 +448,16 @@ class ConfigurationFragment @JvmOverloads constructor(
         }
 
         super.onDestroy()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (speedTestHidden && speedTestJob != null) {
+            speedTestHidden = false
+            speedTestNotification?.updateNotification(0, 0, true)
+            speedTestNotification = null
+            speedTestDialog?.show()
+        }
     }
 
     override fun onKeyDown(ketCode: Int, event: KeyEvent): Boolean {
@@ -786,7 +816,7 @@ class ConfigurationFragment @JvmOverloads constructor(
             }
 
             R.id.action_connection_tcp_ping -> {
-                pingTest(false)
+                confirmSpeedTest()
             }
 
             R.id.action_connection_url_test -> {
@@ -827,6 +857,158 @@ class ConfigurationFragment @JvmOverloads constructor(
             }
         }
         return false
+    }
+
+    private fun confirmSpeedTest() {
+        if (DataStore.runningTest) return
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.speed_test_confirm_title)
+            .setMessage(R.string.speed_test_confirm_message)
+            .setPositiveButton(R.string.speed_test_group) { _, _ -> speedTest() }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun speedTest() {
+        if (DataStore.runningTest) return else DataStore.runningTest = true
+        val group = DataStore.currentGroup()
+        val binding = LayoutProgressListBinding.inflate(layoutInflater)
+        val builder = MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.speed_test_group)
+            .setView(binding.root)
+            .setPositiveButton(R.string.minimize, null)
+            .setNegativeButton(android.R.string.cancel, null)
+            .setCancelable(false)
+        val dialog = builder.show()
+        speedTestDialog = dialog
+
+        val runner = SpeedTestQueueRunner(
+            sessionFactory = ::AndroidSpeedTestSession,
+            failureSnapshot = { profile, error ->
+                SpeedTestSnapshot(
+                    profileId = profile.id,
+                    profileName = profile.displayName(),
+                    mode = DataStore.speedTestMode,
+                    stage = SpeedTestQueueRunner.STAGE_ERROR,
+                    error = error.readableMessage,
+                    done = true,
+                )
+            },
+        )
+        speedTestRunner = runner
+
+        fun stop() {
+            runner.cancel()
+            speedTestJob?.cancel()
+        }
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            speedTestHidden = true
+            speedTestNotification = ConnectionTestNotification(
+                dialog.context,
+                "[${group.displayName()}] ${getString(R.string.speed_test_group)}",
+            )
+            dialog.hide()
+        }
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener {
+            stop()
+            dialog.dismiss()
+        }
+
+        speedTestJob = runOnDefaultDispatcher {
+            try {
+                val profiles = SagerDatabase.proxyDao.getByGroup(group.id)
+                if (profiles.isEmpty()) {
+                    runOnMainDispatcher {
+                        binding.nowTesting.text = getString(R.string.speed_test_finished_summary, 0, 0, 0)
+                        binding.progress.text = "0 / 0"
+                        binding.progressCircular.isGone = true
+                    }
+                    return@runOnDefaultDispatcher
+                }
+                val results = runner.run(profiles) { index, total, sample ->
+                    runOnMainDispatcher {
+                        val detail = formatSpeedTestSnapshot(sample)
+                        speedTestNotification?.updateNotification(index + 1, total, false, detail)
+                        if (!speedTestHidden && isAdded) {
+                            binding.nowTesting.text = detail
+                            binding.progress.text = "${index + 1} / $total"
+                        }
+                    }
+                }
+                runOnMainDispatcher {
+                    if (!isAdded) return@runOnMainDispatcher
+                    val failed = results.count { it.error.isNotBlank() }
+                    val cancelled = results.count { it.cancelled }
+                    binding.nowTesting.text = buildString {
+                        append(
+                            getString(
+                                R.string.speed_test_finished_summary,
+                                results.size,
+                                failed,
+                                cancelled,
+                            )
+                        )
+                        results.forEach { append("\n\n").append(formatSpeedTestSnapshot(it)) }
+                    }
+                    binding.progress.text = "${results.size} / ${profiles.size}"
+                    binding.progressCircular.isGone = true
+                }
+            } catch (_: CancellationException) {
+                runOnMainDispatcher {
+                    if (!speedTestHidden && isAdded) {
+                        binding.nowTesting.text = getString(R.string.speed_test_stage_cancelled)
+                        binding.progressCircular.isGone = true
+                    }
+                }
+            } finally {
+                speedTestNotification?.updateNotification(0, 0, true)
+                speedTestNotification = null
+                speedTestDialog = null
+                speedTestHidden = false
+                speedTestRunner = null
+                speedTestJob = null
+                DataStore.runningTest = false
+            }
+        }
+    }
+
+    private fun formatSpeedTestSnapshot(snapshot: SpeedTestSnapshot): String {
+        val stage = when (snapshot.stage) {
+            SpeedTestQueueRunner.STAGE_DISCOVERY -> getString(R.string.speed_test_stage_discovery)
+            SpeedTestQueueRunner.STAGE_LATENCY -> getString(R.string.speed_test_stage_latency)
+            SpeedTestQueueRunner.STAGE_DOWNLOAD -> getString(R.string.speed_test_stage_download)
+            SpeedTestQueueRunner.STAGE_UPLOAD -> getString(R.string.speed_test_stage_upload)
+            SpeedTestQueueRunner.STAGE_COMPLETE -> getString(R.string.speed_test_stage_complete)
+            SpeedTestQueueRunner.STAGE_CANCELLED -> getString(R.string.speed_test_stage_cancelled)
+            SpeedTestQueueRunner.STAGE_ERROR -> getString(R.string.speed_test_stage_error)
+            else -> getString(R.string.speed_test_stage_pending)
+        }
+        return buildString {
+            append(snapshot.profileName).append(" — ").append(stage)
+            if (snapshot.downloadBitsPerSecond > 0) append('\n').append(
+                getString(
+                    R.string.speed_test_download_format,
+                    getString(R.string.speed_test_rate_mbps, snapshot.downloadBitsPerSecond / 1_000_000.0),
+                    Formatter.formatFileSize(requireContext(), snapshot.downloadBytes),
+                )
+            )
+            if (snapshot.uploadBitsPerSecond > 0) append('\n').append(
+                getString(
+                    R.string.speed_test_upload_format,
+                    getString(R.string.speed_test_rate_mbps, snapshot.uploadBitsPerSecond / 1_000_000.0),
+                    Formatter.formatFileSize(requireContext(), snapshot.uploadBytes),
+                )
+            )
+            if (snapshot.latencyMs > 0) append('\n').append(
+                getString(R.string.speed_test_latency_format, snapshot.latencyMs)
+            )
+            val server = listOf(snapshot.serverName, snapshot.serverCountry)
+                .filter { it.isNotBlank() }
+                .joinToString(", ")
+            if (server.isNotBlank()) append('\n').append(getString(R.string.speed_test_server_format, server))
+            if (snapshot.error.isNotBlank()) append('\n').append(snapshot.error)
+        }
     }
 
     inner class TestDialog {
