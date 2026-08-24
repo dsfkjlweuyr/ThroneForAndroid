@@ -9,6 +9,16 @@ import org.junit.Test
 class SpeedTestQueueRunnerTest {
 
     @Test
+    fun completedCountAdvancesOnlyWhenCurrentNodeFinishes() {
+        assertEquals(0, completedSpeedTestCount(index = 0, total = 3, done = false))
+        assertEquals(1, completedSpeedTestCount(index = 0, total = 3, done = true))
+        assertEquals(1, completedSpeedTestCount(index = 1, total = 3, done = false))
+        assertEquals(2, completedSpeedTestCount(index = 1, total = 3, done = true))
+        assertEquals(3, completedSpeedTestCount(index = 2, total = 3, done = true))
+        assertEquals(0, completedSpeedTestCount(index = 0, total = 0, done = true))
+    }
+
+    @Test
     fun nodesRunSeriallyAndFailureDoesNotStopQueue() = runBlocking {
         val profiles = listOf(1L, 2L, 3L)
         val events = mutableListOf<String>()

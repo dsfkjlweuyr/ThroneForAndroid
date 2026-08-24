@@ -33,6 +33,11 @@ data class SpeedTestSnapshot(
     val done: Boolean = false,
 )
 
+internal fun completedSpeedTestCount(index: Int, total: Int, done: Boolean): Int {
+    if (total <= 0) return 0
+    return (index + if (done) 1 else 0).coerceIn(0, total)
+}
+
 interface SpeedTestNodeSession : AutoCloseable {
     suspend fun run(onSample: (SpeedTestSnapshot) -> Unit): SpeedTestSnapshot
     fun cancel()

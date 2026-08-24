@@ -57,6 +57,7 @@ import io.nekohasekai.sagernet.bg.proto.AndroidSpeedTestSession
 import io.nekohasekai.sagernet.bg.proto.SpeedTestQueueRunner
 import io.nekohasekai.sagernet.bg.proto.SpeedTestSnapshot
 import io.nekohasekai.sagernet.bg.proto.UrlTest
+import io.nekohasekai.sagernet.bg.proto.completedSpeedTestCount
 import io.nekohasekai.sagernet.database.DataStore
 import io.nekohasekai.sagernet.database.GroupManager
 import io.nekohasekai.sagernet.database.ProfileManager
@@ -863,6 +864,10 @@ class ConfigurationFragment @JvmOverloads constructor(
         if (DataStore.runningTest) return else DataStore.runningTest = true
         val group = DataStore.currentGroup()
         val binding = LayoutProgressListBinding.inflate(layoutInflater)
+        binding.progressCircular.isGone = true
+        binding.progressLinear.isVisible = true
+        binding.progressLinear.max = 1
+        binding.progressLinear.setProgressCompat(0, false)
         val builder = MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.speed_test_group)
             .setView(binding.root)
@@ -909,14 +914,17 @@ class ConfigurationFragment @JvmOverloads constructor(
             try {
                 val profiles = SagerDatabase.proxyDao.getByGroup(group.id)
                 if (profiles.isEmpty()) {
-                    runOnMainDispatcher {
-                        binding.nowTesting.text = getString(R.string.speed_test_finished_summary, 0, 0, 0)
-                        binding.progress.text = "0 / 0"
-                        binding.progressCircular.isGone = true
+                    onMainDispatcher {
+                        dialog.dismiss()
                     }
                     return@runOnDefaultDispatcher
                 }
-                val results = runner.run(profiles) { index, total, sample ->
+                onMainDispatcher {
+                    binding.progressLinear.max = profiles.size
+                    binding.progressLinear.setProgressCompat(0, false)
+                    binding.progress.text = "0 / ${profiles.size}"
+                }
+                runner.run(profiles) { index, total, sample ->
                     val outcome = SpeedTestOutcome.completedOrNull(
                         mode = sample.mode,
                         stage = sample.stage,
@@ -943,34 +951,20 @@ class ConfigurationFragment @JvmOverloads constructor(
                         val detail = formatSpeedTestSnapshot(sample)
                         speedTestNotification?.updateNotification(index + 1, total, false, detail)
                         if (!speedTestHidden && isAdded) {
+                            val completed = completedSpeedTestCount(index, total, sample.done)
                             binding.nowTesting.text = detail
-                            binding.progress.text = "${index + 1} / $total"
+                            binding.progress.text = "$completed / $total"
+                            binding.progressLinear.setProgressCompat(completed, true)
                         }
                     }
                 }
-                runOnMainDispatcher {
-                    if (!isAdded) return@runOnMainDispatcher
-                    val failed = results.count { it.error.isNotBlank() }
-                    val cancelled = results.count { it.cancelled }
-                    binding.nowTesting.text = buildString {
-                        append(
-                            getString(
-                                R.string.speed_test_finished_summary,
-                                results.size,
-                                failed,
-                                cancelled,
-                            )
-                        )
-                        results.forEach { append("\n\n").append(formatSpeedTestSnapshot(it)) }
-                    }
-                    binding.progress.text = "${results.size} / ${profiles.size}"
-                    binding.progressCircular.isGone = true
+                onMainDispatcher {
+                    dialog.dismiss()
                 }
             } catch (_: CancellationException) {
                 runOnMainDispatcher {
                     if (!speedTestHidden && isAdded) {
                         binding.nowTesting.text = getString(R.string.speed_test_stage_cancelled)
-                        binding.progressCircular.isGone = true
                     }
                 }
             } finally {

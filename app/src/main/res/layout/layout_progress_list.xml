@@ -13,6 +13,14 @@
         android:indeterminate="true"
         app:indicatorColor="?colorPrimary" />
 
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progress_linear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="false"
+        android:visibility="gone"
+        app:indicatorColor="?colorPrimary" />
+
     <TextView
         android:id="@+id/now_testing"
         android:layout_width="match_parent"

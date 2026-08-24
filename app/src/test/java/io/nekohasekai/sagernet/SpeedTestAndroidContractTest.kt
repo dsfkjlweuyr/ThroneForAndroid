@@ -46,6 +46,11 @@ class SpeedTestAndroidContractTest {
         assertTrue(speedTest.contains("ConnectionTestNotification("))
         assertTrue(speedTest.contains("SpeedTestOutcome.completedOrNull("))
         assertTrue(speedTest.contains("updateSpeedTestResult("))
+        assertTrue(speedTest.contains("completedSpeedTestCount(index, total, sample.done)"))
+        assertTrue(speedTest.contains("binding.progressLinear.setProgressCompat(completed, true)"))
+        assertTrue(speedTest.contains("dialog.dismiss()"))
+        assertFalse(speedTest.contains("speed_test_finished_summary"))
+        assertFalse(speedTest.contains("results.forEach"))
         listOf(
             "sample.downloadBitsPerSecond",
             "sample.uploadBitsPerSecond",
@@ -93,9 +98,16 @@ class SpeedTestAndroidContractTest {
     @Test
     fun menuIsRewiredWithDataUsageConfirmation() {
         val menu = source("main/res/menu/add_profile_menu.xml")
+        val layout = source("main/res/layout/layout_progress_list.xml")
         val strings = source("main/res/values/strings.xml")
+        val urlTestPosition = menu.indexOf("android:id=\"@+id/action_connection_url_test\"")
+        val speedTestPosition = menu.indexOf("android:id=\"@+id/action_connection_tcp_ping\"")
         assertTrue(menu.contains("android:id=\"@+id/action_connection_tcp_ping\""))
         assertTrue(menu.contains("android:title=\"@string/speed_test_group\""))
+        assertTrue(urlTestPosition >= 0)
+        assertTrue(speedTestPosition > urlTestPosition)
+        assertTrue(layout.contains("android:id=\"@+id/progress_linear\""))
+        assertTrue(layout.contains("android:visibility=\"gone\""))
         assertTrue(strings.contains("name=\"speed_test_confirm_message\""))
     }
 

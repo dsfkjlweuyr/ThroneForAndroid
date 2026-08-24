@@ -105,11 +105,11 @@
                 android:id="@+id/action_remove_duplicate"
                 android:title="@string/remove_duplicate" />
             <item
-                android:id="@+id/action_connection_tcp_ping"
-                android:title="@string/speed_test_group" />
-            <item
                 android:id="@+id/action_connection_url_test"
                 android:title="@string/connection_test_url_test" />
+            <item
+                android:id="@+id/action_connection_tcp_ping"
+                android:title="@string/speed_test_group" />
             <item
                 android:id="@+id/action_connection_test_clear_results"
                 android:title="@string/connection_test_clear_results" />
