@@ -61,6 +61,9 @@ data class ProxyEntity(
     var ping: Int = 0,
     var uuid: String = "",
     var error: String? = null,
+    @ColumnInfo(defaultValue = "''") var speedTestMode: String = "",
+    @ColumnInfo(defaultValue = "0") var speedTestDownloadBitsPerSecond: Long = 0L,
+    @ColumnInfo(defaultValue = "0") var speedTestUploadBitsPerSecond: Long = 0L,
     var socksBean: SOCKSBean? = null,
     var httpBean: HttpBean? = null,
     var ssBean: ShadowsocksBean? = null,
@@ -132,7 +135,7 @@ data class ProxyEntity(
     }
 
     override fun serializeToBuffer(output: ByteBufferOutput) {
-        output.writeInt(0)
+        output.writeInt(1)
 
         output.writeLong(id)
         output.writeLong(groupId)
@@ -144,6 +147,9 @@ data class ProxyEntity(
         output.writeInt(ping)
         output.writeString(uuid)
         output.writeString(error)
+        output.writeString(speedTestMode)
+        output.writeLong(speedTestDownloadBitsPerSecond)
+        output.writeLong(speedTestUploadBitsPerSecond)
 
         val data = KryoConverters.serialize(requireBean())
         output.writeVarInt(data.size, true)
@@ -165,6 +171,11 @@ data class ProxyEntity(
         ping = input.readInt()
         uuid = input.readString()
         error = input.readString()
+        if (version >= 1) {
+            speedTestMode = input.readString() ?: ""
+            speedTestDownloadBitsPerSecond = input.readLong()
+            speedTestUploadBitsPerSecond = input.readLong()
+        }
         putByteArray(input.readBytes(input.readVarInt(true)))
 
         dirty = input.readBoolean()
@@ -624,6 +635,32 @@ data class ProxyEntity(
 
         @Query("UPDATE proxy_entities SET rx = 0, tx = 0 WHERE id IN (:profileIds)")
         fun resetTraffic(profileIds: LongArray): Int
+
+        @Query(
+            """UPDATE proxy_entities SET
+                speedTestMode = :mode,
+                speedTestDownloadBitsPerSecond = :downloadBitsPerSecond,
+                speedTestUploadBitsPerSecond = :uploadBitsPerSecond
+                WHERE id = :proxyId"""
+        )
+        fun updateSpeedTestResult(
+            proxyId: Long,
+            mode: String,
+            downloadBitsPerSecond: Long,
+            uploadBitsPerSecond: Long,
+        ): Int
+
+        @Query(
+            """UPDATE proxy_entities SET
+                status = 0,
+                ping = 0,
+                error = NULL,
+                speedTestMode = '',
+                speedTestDownloadBitsPerSecond = 0,
+                speedTestUploadBitsPerSecond = 0
+                WHERE groupId = :groupId"""
+        )
+        fun clearTestResults(groupId: Long): Int
 
         @Insert
         fun addProxy(proxy: ProxyEntity): Long

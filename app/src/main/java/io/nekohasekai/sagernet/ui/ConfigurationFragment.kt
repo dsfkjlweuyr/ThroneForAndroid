@@ -49,6 +49,8 @@ import io.nekohasekai.sagernet.GroupType
 import io.nekohasekai.sagernet.Key
 import io.nekohasekai.sagernet.R
 import io.nekohasekai.sagernet.SagerNet
+import io.nekohasekai.sagernet.SpeedTestDirection
+import io.nekohasekai.sagernet.SpeedTestOutcome
 import io.nekohasekai.sagernet.aidl.TrafficData
 import io.nekohasekai.sagernet.bg.BaseService
 import io.nekohasekai.sagernet.bg.proto.AndroidSpeedTestSession
@@ -705,19 +707,7 @@ class ConfigurationFragment @JvmOverloads constructor(
 
             R.id.action_connection_test_clear_results -> {
                 runOnDefaultDispatcher {
-                    val profiles = SagerDatabase.proxyDao.getByGroup(DataStore.currentGroupId())
-                    val toClear = mutableListOf<ProxyEntity>()
-                    if (profiles.isNotEmpty()) for (profile in profiles) {
-                        if (profile.status != 0) {
-                            profile.status = 0
-                            profile.ping = 0
-                            profile.error = null
-                            toClear.add(profile)
-                        }
-                    }
-                    if (toClear.isNotEmpty()) {
-                        ProfileManager.updateProfile(toClear)
-                    }
+                    SagerDatabase.proxyDao.clearTestResults(DataStore.currentGroupId())
                     onMainDispatcher {
                         getCurrentGroupFragment()?.adapter?.clearTestResults()
                     }
@@ -927,6 +917,28 @@ class ConfigurationFragment @JvmOverloads constructor(
                     return@runOnDefaultDispatcher
                 }
                 val results = runner.run(profiles) { index, total, sample ->
+                    val outcome = SpeedTestOutcome.completedOrNull(
+                        mode = sample.mode,
+                        stage = sample.stage,
+                        done = sample.done,
+                        cancelled = sample.cancelled,
+                        error = sample.error,
+                        downloadBitsPerSecond = sample.downloadBitsPerSecond,
+                        uploadBitsPerSecond = sample.uploadBitsPerSecond,
+                    )
+                    if (outcome != null && SagerDatabase.proxyDao.updateSpeedTestResult(
+                            proxyId = sample.profileId,
+                            mode = outcome.mode,
+                            downloadBitsPerSecond = outcome.downloadBitsPerSecond,
+                            uploadBitsPerSecond = outcome.uploadBitsPerSecond,
+                        ) > 0
+                    ) {
+                        runOnMainDispatcher {
+                            adapter.groupFragments.values.forEach { fragment ->
+                                fragment.adapter?.updateSpeedTestResult(sample.profileId, outcome)
+                            }
+                        }
+                    }
                     runOnMainDispatcher {
                         val detail = formatSpeedTestSnapshot(sample)
                         speedTestNotification?.updateNotification(index + 1, total, false, detail)
@@ -2096,13 +2108,23 @@ class ConfigurationFragment @JvmOverloads constructor(
 
             fun clearTestResults() {
                 for (profile in configurationList.values) {
-                    if (profile.status != 0) {
-                        profile.status = 0
-                        profile.ping = 0
-                        profile.error = null
-                    }
+                    profile.status = 0
+                    profile.ping = 0
+                    profile.error = null
+                    profile.speedTestMode = ""
+                    profile.speedTestDownloadBitsPerSecond = 0
+                    profile.speedTestUploadBitsPerSecond = 0
                 }
                 notifyDataSetChanged()
+            }
+
+            fun updateSpeedTestResult(profileId: Long, outcome: SpeedTestOutcome) {
+                val profile = configurationList[profileId] ?: return
+                profile.speedTestMode = outcome.mode
+                profile.speedTestDownloadBitsPerSecond = outcome.downloadBitsPerSecond
+                profile.speedTestUploadBitsPerSecond = outcome.uploadBitsPerSecond
+                val index = configurationIdList.indexOf(profileId)
+                if (index >= 0) notifyItemChanged(index)
             }
 
             fun remove(pos: Int) {
@@ -2485,6 +2507,67 @@ class ConfigurationFragment @JvmOverloads constructor(
                 }
             }
 
+            private fun speedTestResultText(proxyEntity: ProxyEntity): String? {
+                val outcome = SpeedTestOutcome(
+                    mode = proxyEntity.speedTestMode,
+                    downloadBitsPerSecond = proxyEntity.speedTestDownloadBitsPerSecond,
+                    uploadBitsPerSecond = proxyEntity.speedTestUploadBitsPerSecond,
+                )
+                val rates = outcome.rates()
+                if (rates.isEmpty()) return null
+                return rates.joinToString("  ") { rate ->
+                    val direction = when (rate.direction) {
+                        SpeedTestDirection.DOWNLOAD -> "↓"
+                        SpeedTestDirection.UPLOAD -> "↑"
+                    }
+                    "$direction ${getString(R.string.speed_test_rate_mbps, rate.bitsPerSecond / 1_000_000.0)}"
+                }
+            }
+
+            private fun bindTestResult(
+                proxyEntity: ProxyEntity,
+                showTraffic: Boolean,
+                speedTestText: String?,
+            ) {
+                val text = SpannableStringBuilder()
+                fun appendPart(value: CharSequence?, color: Int) {
+                    if (value.isNullOrEmpty()) return
+                    if (text.isNotEmpty()) text.append('\n')
+                    val start = text.length
+                    text.append(value)
+                    text.setSpan(ForegroundColorSpan(color), start, text.length, SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+
+                val secondary = requireContext().getColorAttr(android.R.attr.textColorSecondary)
+                when (proxyEntity.status) {
+                    1 -> appendPart(
+                        getString(R.string.available, proxyEntity.ping),
+                        requireContext().getColour(R.color.material_green_500),
+                    )
+
+                    2 -> appendPart(
+                        proxyEntity.error,
+                        requireContext().getColour(R.color.material_red_500),
+                    )
+
+                    3 -> {
+                        val error = proxyEntity.error ?: "<?>"
+                        val friendly = Protocols.genFriendlyMsg(error)
+                        appendPart(
+                            if (friendly != error) friendly else getString(R.string.unavailable),
+                            requireContext().getColour(R.color.material_red_500),
+                        )
+                    }
+
+                    else -> if (speedTestText == null && showTraffic) {
+                        appendPart(trafficText.text, secondary)
+                        trafficText.text = ""
+                    }
+                }
+                appendPart(speedTestText, secondary)
+                profileStatus.text = text
+            }
+
             fun bind(proxyEntity: ProxyEntity) {
                 val pf = parentFragment as? ConfigurationFragment ?: return
 
@@ -2497,6 +2580,7 @@ class ConfigurationFragment @JvmOverloads constructor(
 
                 val rx = proxyEntity.rx
                 val tx = proxyEntity.tx
+                val speedTestText = speedTestResultText(proxyEntity)
 
                 val showTraffic = rx + tx != 0L
                 trafficText.isVisible = showTraffic
@@ -2525,29 +2609,7 @@ class ConfigurationFragment @JvmOverloads constructor(
                 }
                 lastSelfHasMiddleRow = !trafficRowEmpty
 
-                if (proxyEntity.status <= 0) {
-                    if (showTraffic) {
-                        profileStatus.text = trafficText.text
-                        profileStatus.setTextColor(requireContext().getColorAttr(android.R.attr.textColorSecondary))
-                        trafficText.text = ""
-                    } else {
-                        profileStatus.text = ""
-                    }
-                } else if (proxyEntity.status == 1) {
-                    profileStatus.text = getString(R.string.available, proxyEntity.ping)
-                    profileStatus.setTextColor(requireContext().getColour(R.color.material_green_500))
-                } else {
-                    profileStatus.setTextColor(requireContext().getColour(R.color.material_red_500))
-                    if (proxyEntity.status == 2) {
-                        profileStatus.text = proxyEntity.error
-                    }
-                }
-
-                if (proxyEntity.status == 3) {
-                    val err = proxyEntity.error ?: "<?>"
-                    val msg = Protocols.genFriendlyMsg(err)
-                    profileStatus.text = if (msg != err) msg else getString(R.string.unavailable)
-                }
+                bindTestResult(proxyEntity, showTraffic, speedTestText)
 
                 val selectOrChain = select || proxyEntity.type == ProxyEntity.TYPE_CHAIN
                 val isDoubleColumn = layoutManager is FixedGridLayoutManager
@@ -2614,9 +2676,12 @@ class ConfigurationFragment @JvmOverloads constructor(
                     Formatter.formatFileSize(view.context, proxyEntity.tx),
                     Formatter.formatFileSize(view.context, proxyEntity.rx)
                 )
-                if (proxyEntity.status <= 0) {
+                if (proxyEntity.status <= 0 && speedTestResultText(proxyEntity) == null) {
                     if (profileStatus.text?.toString() != traffic) {
                         profileStatus.text = traffic
+                        profileStatus.setTextColor(
+                            requireContext().getColorAttr(android.R.attr.textColorSecondary)
+                        )
                     }
                 } else if (trafficText.text?.toString() != traffic) {
                     trafficText.text = traffic
