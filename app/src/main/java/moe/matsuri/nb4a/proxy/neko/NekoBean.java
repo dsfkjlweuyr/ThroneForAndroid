@@ -64,16 +64,6 @@ public class NekoBean extends AbstractBean {
         return false;
     }
 
-    @Override
-    public boolean canICMPing() {
-        return false;
-    }
-
-    @Override
-    public boolean canTCPing() {
-        return false;
-    }
-
     @NotNull
     @Override
     public NekoBean clone() {

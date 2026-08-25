@@ -109,10 +109,7 @@
 <string name="connection_test_delete_unavailable">Удалить недоступные</string>
 <string name="connection_test_domain_not_found">Домен не найден</string>
 <string name="connection_test_error">Ошибка: %s</string>
-<string name="connection_test_icmp_ping_unavailable">ICMPing недоступен</string>
 <string name="connection_test_refused">В соединении отказано</string>
-<string name="connection_test_tcp_ping">TCP Пинг</string>
-<string name="connection_test_tcp_ping_unavailable">TCPing недоступен</string>
 <string name="connection_test_testing">Тестирование…</string>
 <string name="connection_test_timeout_error">Тайм-аут</string>
 <string name="connection_test_unreachable">Недоступен</string>

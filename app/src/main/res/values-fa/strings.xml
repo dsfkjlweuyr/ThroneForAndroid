@@ -323,10 +323,6 @@
     <string name="clear_traffic_statistics">پاک کردن اطلاعات ترافیک</string>
     <string name="connection_test">آزمایش اتصال</string>
     <string name="connection_test_clear_results">پاک کردن نتایج آزمایش</string>
-    <string name="connection_test_tcp_ping" translatable="false">TCPing</string>
-    <string name="connection_test_tcp_ping_unavailable">TCPing در دسترس نیست</string>
-    <string name="connection_test_icmp_ping" translatable="false">ICMPing</string>
-    <string name="connection_test_icmp_ping_unavailable">ICMPing در دسترس نیست</string>
     <string name="connection_test_url_test" translatable="false">آزمایش اتصال به لینک</string>
     <string name="connection_test_domain_not_found">دامنه یافت نشد</string>
     <string name="connection_test_refused">اتصال رد شد</string>

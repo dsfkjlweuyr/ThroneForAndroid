@@ -298,10 +298,6 @@
     <string name="clear_traffic_statistics">Borrar estadísticas de tráfico</string> 
     <string name="connection_test">Prueba de conexión</string> 
     <string name="connection_test_clear_results">Borrar resultados de la prueba</string> 
-    <string name="connection_test_tcp_ping" translatable="false">TCPing</string> 
-    <string name="connection_test_tcp_ping_unavailable">TCPing no disponible</string> 
-    <string name="connection_test_icmp_ping" translatable="false">ICMPing</string> 
-    <string name="connection_test_icmp_ping_unavailable">ICMPing no disponible</string> 
     <string name="connection_test_url_test" translatable="false">URL Test</string> 
     <string name="connection_test_domain_not_found">Dominio no encontrado</string> 
     <string name="connection_test_refused">Conexión denegada</string> 

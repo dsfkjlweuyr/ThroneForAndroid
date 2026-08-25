@@ -300,8 +300,6 @@
     <string name="clear_traffic_statistics">트래픽 통계 지우기</string>
     <string name="connection_test">연결 테스트</string>
     <string name="connection_test_clear_results">테스트 결과 지우기</string>
-    <string name="connection_test_tcp_ping_unavailable">TCPing 사용 불가</string>
-    <string name="connection_test_icmp_ping_unavailable">ICMPing 사용 불가</string>
     <string name="connection_test_domain_not_found">도메인을 찾을 수 없음</string>
     <string name="connection_test_refused">연결이 거부됨</string>
     <string name="connection_test_unreachable">도달할 수 없음</string>

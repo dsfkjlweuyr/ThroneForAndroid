@@ -50,11 +50,6 @@ public class JuicityBean extends AbstractBean {
         allowInsecure = input.readBoolean();
     }
 
-    @Override
-    public boolean canTCPing() {
-        return false;
-    }
-
     @NotNull
     @Override
     public JuicityBean clone() {

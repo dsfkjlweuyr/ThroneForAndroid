@@ -155,11 +155,6 @@ public class HysteriaBean extends AbstractBean {
         return NetsKt.wrapIPV6Host(serverAddress) + ":" + serverPorts;
     }
 
-    @Override
-    public boolean canTCPing() {
-        return false;
-    }
-
     @NotNull
     @Override
     public HysteriaBean clone() {

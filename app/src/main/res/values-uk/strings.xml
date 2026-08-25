@@ -322,10 +322,6 @@
     <string name="clear_traffic_statistics">Очистити статистику трафіку</string>
     <string name="connection_test">Тест з\'єднання</string>
     <string name="connection_test_clear_results">Очистити результати тесту</string>
-    <string name="connection_test_tcp_ping" translatable="false">TCPing</string>
-    <string name="connection_test_tcp_ping_unavailable">TCPing недоступний</string>
-    <string name="connection_test_icmp_ping" translatable="false">ICMPing</string>
-    <string name="connection_test_icmp_ping_unavailable">ICMPing недоступний</string>
     <string name="connection_test_url_test" translatable="false">URL Test</string>
     <string name="connection_test_domain_not_found">Домен не знайдено</string>
     <string name="connection_test_refused">З\'єднання відхилено</string>

@@ -101,14 +101,60 @@ class SpeedTestAndroidContractTest {
         val layout = source("main/res/layout/layout_progress_list.xml")
         val strings = source("main/res/values/strings.xml")
         val urlTestPosition = menu.indexOf("android:id=\"@+id/action_connection_url_test\"")
-        val speedTestPosition = menu.indexOf("android:id=\"@+id/action_connection_tcp_ping\"")
-        assertTrue(menu.contains("android:id=\"@+id/action_connection_tcp_ping\""))
+        val speedTestPosition = menu.indexOf("android:id=\"@+id/action_speed_test_group\"")
+        assertTrue(menu.contains("android:id=\"@+id/action_speed_test_group\""))
         assertTrue(menu.contains("android:title=\"@string/speed_test_group\""))
         assertTrue(urlTestPosition >= 0)
         assertTrue(speedTestPosition > urlTestPosition)
         assertTrue(layout.contains("android:id=\"@+id/progress_linear\""))
         assertTrue(layout.contains("android:visibility=\"gone\""))
         assertTrue(strings.contains("name=\"speed_test_confirm_message\""))
+    }
+
+    @Test
+    fun legacyDirectPingCodeResourcesAndMenuIdsAreAbsent() {
+        val deprecatedSymbols = listOf(
+            "pingTest(",
+            "canTCPing(",
+            "canICMPing(",
+            "action_connection_tcp_ping",
+            "action_connection_icmp_ping",
+            "connection_test_tcp_ping",
+            "connection_test_icmp_ping",
+        )
+        val productionFiles = File("src/main").walkTopDown()
+            .filter { it.isFile && it.extension in setOf("java", "kt", "xml") }
+            .toList()
+
+        deprecatedSymbols.forEach { symbol ->
+            assertFalse(
+                "deprecated direct Ping symbol remains in production: $symbol",
+                productionFiles.any { it.readText().contains(symbol) },
+            )
+        }
+    }
+
+    @Test
+    fun urlTestQueueResultClearingAndUnavailableDeletionRemainWired() {
+        val fragment = source("main/java/io/nekohasekai/sagernet/ui/ConfigurationFragment.kt")
+        val urlTest = fragment
+            .substringAfter("fun urlTest()")
+            .substringBefore("inner class GroupPagerAdapter")
+        val actions = fragment
+            .substringAfter("R.id.action_connection_test_clear_results")
+            .substringBefore("R.id.action_remove_duplicate")
+
+        assertTrue(urlTest.contains("repeat(DataStore.connectionTestConcurrent)"))
+        assertTrue(urlTest.contains("val urlTest = UrlTest()"))
+        assertTrue(urlTest.contains("profile.ping = result"))
+        assertTrue(urlTest.contains("ProfileManager.updateProfile(it)"))
+        assertTrue(urlTest.contains("GroupManager.postReload(DataStore.currentGroupId())"))
+        assertTrue(urlTest.contains("DataStore.runningTest = false"))
+
+        assertTrue(actions.contains("SagerDatabase.proxyDao.clearTestResults(DataStore.currentGroupId())"))
+        assertTrue(actions.contains("getCurrentGroupFragment()?.adapter?.clearTestResults()"))
+        assertTrue(actions.contains("profile.status != 0 && profile.status != 1"))
+        assertTrue(actions.contains("ProfileManager.deleteProfile2("))
     }
 
     private fun source(relativePath: String): String = File("src/$relativePath").readText()
