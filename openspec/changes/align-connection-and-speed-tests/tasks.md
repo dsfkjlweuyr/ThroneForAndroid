@@ -28,12 +28,12 @@
 - [x] 4.1 删除 `pingTest(icmpPing)`、socket/ICMP 分支、旧菜单 handler，以及 `canTCPing()`/`canICMPing()` 基类能力和所有 Bean overrides；清理仅由这些路径使用的 imports、通知状态和辅助代码。
 - [x] 4.2 删除或重命名 `connection_test_tcp_ping`、`connection_test_icmp_ping`、对应 unavailable 文案和遗留 menu ID，保证“速度测试本组”使用独立 speed-test 命名，URL RTT 与正式连接状态栏 URL 测试不受影响。
 - [x] 4.3 增加静态检查，确保生产源码和资源中不存在废弃 Ping 资源/方法/ID 引用，并回归 URL 测试队列、结果清理和删除不可用节点行为。
-- [ ] 4.4 提交本批次并运行 GitHub Actions Android unit/lint/build job；预期无资源引用、编译或 URL 测试回归。真机打开当前组菜单并运行 URL 测试与速度测试，确认没有 TCP/ICMP Ping 入口且两个保留入口均可用；回传 run、提交 SHA、菜单截图和两类测试结果。
+- [x] 4.4 提交本批次并运行 GitHub Actions Android unit/lint/build job；预期无资源引用、编译或 URL 测试回归。真机打开当前组菜单并运行 URL 测试与速度测试，确认没有 TCP/ICMP Ping 入口且两个保留入口均可用；回传 run、提交 SHA、菜单截图和两类测试结果。
 
 ## 5. 全量 i18n、规范与最终一致性
 
-- [ ] 5.1 将 `connection_test_url_test` 改为可翻译的 “URL test this group”，增加可翻译的 “Speed test this group”，并为每个现有 `values-*` 目录补齐两项；简中使用“URL 测试本组”/“速度测试本组”，繁中提供对应准确翻译，其他语言至少提供可审核的本地化或英文回退。
-- [ ] 5.2 将所有语言的 `connection_test_url` 更新为“延迟测试 URL”等义标题，补齐新增速度模式、超时、简单下载、进度、错误、取消与流量提示文本；移除 `translatable=false` 和旧 Ping 文案。
-- [ ] 5.3 增加资源静态校验，枚举所有 `values-*` 检查新键齐全、无重复/不可翻译声明、无废弃 Ping 键，并检查 XML/Kotlin/Java/Go/文档不再引用旧默认 URL、并发 5 或旧菜单术语。
-- [ ] 5.4 将本变更 delta 同步到 `openspec/specs/android-application/spec.md` 与 `openspec/specs/libcore-integration/spec.md`，更新引用连接/速度测试默认值和入口的 README、调研记录或其他规范文档，并记录 Throne 提交与上游依赖版本。
+- [x] 5.1 将 `connection_test_url_test` 改为可翻译的 “URL test this group”，增加可翻译的 “Speed test this group”，并为每个现有 `values-*` 目录补齐两项；简中使用“URL 测试本组”/“速度测试本组”，繁中提供对应准确翻译，其他语言至少提供可审核的本地化或英文回退。
+- [x] 5.2 将所有语言的 `connection_test_url` 更新为“延迟测试 URL”等义标题，补齐新增速度模式、超时、简单下载、进度、错误、取消与流量提示文本；移除 `translatable=false` 和旧 Ping 文案。
+- [x] 5.3 增加资源静态校验，枚举所有 `values-*` 检查新键齐全、无重复/不可翻译声明、无废弃 Ping 键，并检查 XML/Kotlin/Java/Go/文档不再引用旧默认 URL、并发 5 或旧菜单术语。
+- [x] 5.4 将本变更 delta 同步到 `openspec/specs/android-application/spec.md` 与 `openspec/specs/libcore-integration/spec.md`，更新引用连接/速度测试默认值和入口的 README、调研记录或其他规范文档，并记录 Throne 提交与上游依赖版本。
 - [ ] 5.5 提交最终批次，运行 `openspec validate align-connection-and-speed-tests --strict` 以及 GitHub Actions 全量 Android/libcore unit、lint、build job；预期严格规范校验、全语言资源检查及构建全部通过。真机切换英文、简中和一种繁中语言确认菜单、设置、进度和错误文案，无截断/英文硬编码；回传最终 run、提交 SHA、校验输出、三语言截图和最终测速录屏作为完成证据。

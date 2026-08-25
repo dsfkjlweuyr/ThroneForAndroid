@@ -383,7 +383,7 @@
     <string name="clear_traffic_statistics">Clear traffic statistics</string>
     <string name="connection_test">Connection test</string>
     <string name="connection_test_clear_results">Clear test results</string>
-    <string name="connection_test_url_test" translatable="false">URL Test</string>
+    <string name="connection_test_url_test">URL test this group</string>
     <string name="connection_test_domain_not_found">Domain not found</string>
     <string name="connection_test_refused">Connection refused</string>
     <string name="connection_test_unreachable">Unreachable</string>

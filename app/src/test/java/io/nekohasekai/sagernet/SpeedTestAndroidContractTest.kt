@@ -1,9 +1,11 @@
 package io.nekohasekai.sagernet
 
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
+import javax.xml.parsers.DocumentBuilderFactory
 
 class SpeedTestAndroidContractTest {
 
@@ -132,6 +134,122 @@ class SpeedTestAndroidContractTest {
                 productionFiles.any { it.readText().contains(symbol) },
             )
         }
+    }
+
+    @Test
+    fun everyLocaleDefinesTranslatableConnectionAndSpeedTestStrings() {
+        val requiredKeys = setOf(
+            "connection_test_url",
+            "connection_test_url_test",
+            "speed_test_settings",
+            "speed_test_mode",
+            "speed_test_mode_download_upload",
+            "speed_test_mode_download",
+            "speed_test_mode_upload",
+            "speed_test_mode_simple_download",
+            "speed_test_timeout_ms",
+            "speed_test_timeout_invalid",
+            "simple_download_url",
+            "speed_test_url_invalid",
+            "speed_test_group",
+            "speed_test_confirm_title",
+            "speed_test_confirm_message",
+            "speed_test_stage_pending",
+            "speed_test_stage_discovery",
+            "speed_test_stage_latency",
+            "speed_test_stage_download",
+            "speed_test_stage_upload",
+            "speed_test_stage_complete",
+            "speed_test_stage_cancelled",
+            "speed_test_stage_error",
+            "speed_test_latency_format",
+            "speed_test_server_format",
+            "speed_test_download_format",
+            "speed_test_upload_format",
+            "speed_test_rate_mbps",
+        )
+        val stringFiles = File("src/main/res").listFiles()
+            .orEmpty()
+            .filter { it.isDirectory && it.name.startsWith("values") }
+            .map { File(it, "strings.xml") }
+            .filter(File::isFile)
+
+        assertTrue("no localized strings.xml files found", stringFiles.isNotEmpty())
+        stringFiles.forEach { stringsFile ->
+            val strings = DocumentBuilderFactory.newInstance()
+                .newDocumentBuilder()
+                .parse(stringsFile)
+                .getElementsByTagName("string")
+            val resources = (0 until strings.length).map { strings.item(it).attributes }
+            val names = resources.map { it.getNamedItem("name").nodeValue }
+
+            assertEquals(
+                "duplicate string keys in ${stringsFile.parentFile.name}",
+                names.toSet().size,
+                names.size,
+            )
+            assertTrue(
+                "missing connection/speed-test strings in ${stringsFile.parentFile.name}: " +
+                    (requiredKeys - names.toSet()).sorted(),
+                names.containsAll(requiredKeys),
+            )
+            resources.filter { it.getNamedItem("name").nodeValue in requiredKeys }.forEach { attributes ->
+                assertFalse(
+                    "connection/speed-test string is not translatable in ${stringsFile.parentFile.name}: " +
+                        attributes.getNamedItem("name").nodeValue,
+                    attributes.getNamedItem("translatable")?.nodeValue == "false",
+                )
+            }
+        }
+    }
+
+    @Test
+    fun baselineAndChineseMenuTranslationsUseCurrentTerminology() {
+        val expected = mapOf(
+            "values" to Triple("Latency test URL", "URL test this group", "Speed test this group"),
+            "values-zh-rCN" to Triple("延迟测试 URL", "URL 测试本组", "速度测试本组"),
+            "values-zh-rHK" to Triple("延遲測試 URL", "URL 測試本組", "速度測試本組"),
+            "values-zh-rTW" to Triple("延遲測試 URL", "URL 測試本組", "速度測試本組"),
+        )
+
+        expected.forEach { (directory, translations) ->
+            val strings = source("main/res/$directory/strings.xml")
+            assertTrue(strings.contains(">${translations.first}</string>"))
+            assertTrue(strings.contains(">${translations.second}</string>"))
+            assertTrue(strings.contains(">${translations.third}</string>"))
+        }
+    }
+
+    @Test
+    fun productionAndCurrentDocumentationDoNotUseLegacyTestDefaultsOrTerms() {
+        val forbidden = listOf(
+            "http://www.gstatic.com/generate_204",
+            "URL Test",
+            "connection_test_tcp_ping",
+            "connection_test_icmp_ping",
+            "action_connection_tcp_ping",
+            "action_connection_icmp_ping",
+        )
+        val checkedFiles = buildList {
+            addAll(File("src/main").walkTopDown().filter(File::isFile).toList())
+            add(File("../README.md"))
+            add(File("../THR_FILE_RESEARCH.md"))
+            add(File("../openspec/specs/android-application/spec.md"))
+            add(File("../openspec/specs/libcore-integration/spec.md"))
+        }.filter(File::isFile)
+
+        forbidden.forEach { term ->
+            assertFalse(
+                "legacy connection/speed-test term remains in ${checkedFiles.firstOrNull { it.readText().contains(term) }}: $term",
+                checkedFiles.any { it.readText().contains(term) },
+            )
+        }
+        assertFalse(
+            "legacy URL-test concurrency default remains in production resources",
+            File("src/main/res").walkTopDown()
+                .filter { it.isFile && it.extension == "xml" }
+                .any { it.readText().contains(">5</integer>") && it.readText().contains("connection_test") },
+        )
     }
 
     @Test

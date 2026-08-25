@@ -192,6 +192,12 @@ settings rows: 151   profiles rows: 92   groups rows: 2   route_profiles rows: 1
 - 桌面端 `.thrbackup`：QDataStream 二进制容器 + 内嵌 SQLite 快照；
 - Android 端 `.json`：JSON 文本 + Base64 封装的逐条配置 bean；
 
+### 6.1 测试设置映射
+
+Android 导入桌面 `.thrbackup` 的 settings 表时，可映射 `speed_test_mode`、`speed_test_timeout_ms` 和 `simple_dl_url`。导入器仅在备份中明确存在且值有效时写入这些字段；缺失字段不会以桌面默认值覆盖 Android 已持久化的自定义设置。
+
+连接与速度测试行为以 Throne 提交 `2e7182b9ea99947a409fee30f74df83752ab763c` 为参考：延迟 URL 默认为 `http://cp.cloudflare.com/`、URL 延迟并发为 10、速度测试模式默认为下载+上传、超时为 5000 ms、简单下载 URL 为 `http://cachefly.cachefly.net/1mb.test`。完整测速通过服务发现选择服务器，不存在需要持久化的固定下载/上传 URL。上游 `speedtest-go` 版本、许可证及 checksum 记录在 [`libcore/DEPENDENCIES.md`](libcore/DEPENDENCIES.md)。
+
 ---
 
 ## 7. 复现 / 互操作参考

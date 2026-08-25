@@ -30,7 +30,7 @@ URL 延迟测试 MUST 使用不注册 PlatformLogWriter 的测试实例，从而
 - **AND** 各实例拥有正确的网络接口缓存和 protect 结果
 - **AND** 测速使用与正式连接一致的协议族与域名策略
 
-#### Scenario: 并发批量测速
+#### Scenario: URL 延迟测试使用独立并发配置
 
 - **GIVEN** 主进程同时执行当前组的 URL 延迟测试
 - **WHEN** URL 延迟测试工作队列按默认配置启动

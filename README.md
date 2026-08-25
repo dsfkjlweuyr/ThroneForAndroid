@@ -32,6 +32,16 @@ https://t.me/Matsuridayo
 
 https://matsuridayo.github.io
 
+## 连接与速度测试 / Connection and Speed Tests
+
+当前组菜单提供“URL 测试本组”和“速度测试本组”两个入口，不再提供批量直连 TCP/ICMP Ping。URL 延迟测试的新安装默认地址为 `http://cp.cloudflare.com/`，默认并发为 10。
+
+速度测试支持下载+上传、仅下载、仅上传和简单下载；节点会逐个测试，流量通过各自代理发送。默认模式为下载+上传，默认超时为 5000 ms，简单下载默认地址为 `http://cachefly.cachefly.net/1mb.test`。速度测试可能消耗大量流量，请按需选择模式或及时取消。升级不会覆盖已经保存的自定义测试设置。
+
+The current-group menu provides **URL test this group** and **Speed test this group**; direct batch TCP/ICMP Ping actions are no longer exposed. New installations use `http://cp.cloudflare.com/` with 10 URL-latency workers by default.
+
+Speed testing supports download + upload, download only, upload only, and simple download. Profiles are tested one at a time through their own proxy. The default mode is download + upload, the default timeout is 5000 ms, and the default simple-download URL is `http://cachefly.cachefly.net/1mb.test`. Speed tests may consume significant data. Existing custom test settings are preserved during upgrades.
+
 ## 支持的代理协议 / Supported Proxy Protocols
 
 * SOCKS (4/4a/5)
@@ -229,6 +239,7 @@ Only resolving outbound, i.e. nodes, is supported. Information such as diversion
 Core:
 
 - [SagerNet/sing-box](https://github.com/SagerNet/sing-box)
+- [Mahdi-zarei/speedtest-go](https://github.com/Mahdi-zarei/speedtest-go)（版本与来源见 [`libcore/DEPENDENCIES.md`](libcore/DEPENDENCIES.md)）
 
 Android GUI:
 

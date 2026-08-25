@@ -94,7 +94,7 @@
     <string name="port_local_dns">Puerto DNS local</string> 
     <string name="require_transproxy">Activar transproxy entrante</string> 
     <string name="transproxy_mode">Modo transproxy</string> 
-    <string name="connection_test_url">URL de prueba de conexión</string> 
+    <string name="connection_test_url">URL de prueba de latencia</string>
     <!-- proxy category --> 
     <string name="profile_name">Nombre de perfil</string> 
     <string name="server_address">Servidor</string> 
@@ -298,7 +298,7 @@
     <string name="clear_traffic_statistics">Borrar estadísticas de tráfico</string> 
     <string name="connection_test">Prueba de conexión</string> 
     <string name="connection_test_clear_results">Borrar resultados de la prueba</string> 
-    <string name="connection_test_url_test" translatable="false">URL Test</string> 
+    <string name="connection_test_url_test">Probar URL de este grupo</string>
     <string name="connection_test_domain_not_found">Dominio no encontrado</string> 
     <string name="connection_test_refused">Conexión denegada</string> 
     <string name="connection_test_unreachable">Inalcanzable</string> 
@@ -455,4 +455,30 @@
     <string name="connection_test_delete_unavailable">Borrado no disponible</string> 
 
     <string name="preview_hint_dont_show_again">No volver a mostrar</string>
+    <string name="speed_test_settings">Speed test</string>
+    <string name="speed_test_mode">Speed test mode</string>
+    <string name="speed_test_mode_download_upload">Download + upload</string>
+    <string name="speed_test_mode_download">Download only</string>
+    <string name="speed_test_mode_upload">Upload only</string>
+    <string name="speed_test_mode_simple_download">Simple download</string>
+    <string name="speed_test_timeout_ms">Speed test timeout (ms)</string>
+    <string name="speed_test_timeout_invalid">Enter a timeout greater than zero milliseconds</string>
+    <string name="simple_download_url">Simple download URL</string>
+    <string name="speed_test_url_invalid">Enter a valid HTTP or HTTPS URL</string>
+    <string name="speed_test_group">Probar velocidad de este grupo</string>
+    <string name="speed_test_confirm_title">Run speed test?</string>
+    <string name="speed_test_confirm_message">Speed testing can use significant data. Profiles are tested one at a time through their own proxy.</string>
+    <string name="speed_test_stage_pending">Waiting</string>
+    <string name="speed_test_stage_discovery">Finding a test server</string>
+    <string name="speed_test_stage_latency">Measuring server latency</string>
+    <string name="speed_test_stage_download">Downloading</string>
+    <string name="speed_test_stage_upload">Uploading</string>
+    <string name="speed_test_stage_complete">Complete</string>
+    <string name="speed_test_stage_cancelled">Cancelled</string>
+    <string name="speed_test_stage_error">Failed</string>
+    <string name="speed_test_latency_format">Latency: %1$d ms</string>
+    <string name="speed_test_server_format">Server: %1$s</string>
+    <string name="speed_test_download_format">Download: %1$s (%2$s)</string>
+    <string name="speed_test_upload_format">Upload: %1$s (%2$s)</string>
+    <string name="speed_test_rate_mbps">%1$.2f Mbps</string>
 </resources>
