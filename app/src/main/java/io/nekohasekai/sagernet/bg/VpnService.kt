@@ -52,8 +52,23 @@ class VpnService : BaseVpnService(),
 
     @Suppress("EXPERIMENTAL_API_USAGE")
     override fun killProcesses() {
-        conn?.close()
-        conn = null
+        val currentConnection = conn
+        Logs.i(
+            "VpnLifecycleTrace stage=tun-close begin " +
+                "hasConnection=${currentConnection != null}"
+        )
+        try {
+            currentConnection?.close()
+            Logs.i("VpnLifecycleTrace stage=tun-close success")
+        } catch (error: Throwable) {
+            Logs.w(
+                "VpnLifecycleTrace stage=tun-close failed " +
+                    "type=${error.javaClass.name} message=${error.message}"
+            )
+            throw error
+        } finally {
+            conn = null
+        }
         super.killProcesses()
     }
 

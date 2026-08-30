@@ -229,7 +229,27 @@ class BaseService {
         }
 
         fun killProcesses() {
-            data.proxy?.close()
+            val proxy = data.proxy
+            val serviceId = Integer.toHexString(System.identityHashCode(data))
+            val proxyId = proxy?.let { Integer.toHexString(System.identityHashCode(it)) } ?: "none"
+            Logs.i(
+                "ServiceLifecycleTrace serviceId=$serviceId proxyId=$proxyId " +
+                    "profileId=${proxy?.profile?.id ?: -1L} stage=kill begin"
+            )
+            try {
+                proxy?.close()
+                Logs.i(
+                    "ServiceLifecycleTrace serviceId=$serviceId proxyId=$proxyId " +
+                        "profileId=${proxy?.profile?.id ?: -1L} stage=kill success"
+                )
+            } catch (error: Throwable) {
+                Logs.w(
+                    "ServiceLifecycleTrace serviceId=$serviceId proxyId=$proxyId " +
+                        "profileId=${proxy?.profile?.id ?: -1L} stage=kill failed " +
+                        "type=${error.javaClass.name} message=${error.message}"
+                )
+                throw error
+            }
             wakeLock?.apply {
                 release()
                 wakeLock = null
@@ -244,11 +264,25 @@ class BaseService {
             DataStore.vpnService = null
             DataStore.mixedInboundAuthed = false
 
-            if (data.state == State.Stopping) return
+            val serviceId = Integer.toHexString(System.identityHashCode(data))
+            val proxy = data.proxy
+            val proxyId = proxy?.let { Integer.toHexString(System.identityHashCode(it)) } ?: "none"
+            val caller = Thread.currentThread().stackTrace.firstOrNull { frame ->
+                frame.className != Thread::class.java.name && frame.methodName != "stopRunner"
+            }?.let { frame -> "${frame.className}.${frame.methodName}:${frame.lineNumber}" }
+                ?: "unknown"
             Logs.i(
-                "ServiceStopTrace restart=$restart state=${data.state} " +
-                    "profileId=${data.proxy?.profile?.id ?: -1L} hasMessage=${msg != null}"
+                "ServiceStopTrace serviceId=$serviceId proxyId=$proxyId restart=$restart " +
+                    "state=${data.state} profileId=${proxy?.profile?.id ?: -1L} " +
+                    "hasMessage=${msg != null} caller=$caller"
             )
+            if (data.state == State.Stopping) {
+                Logs.i(
+                    "ServiceStopTrace serviceId=$serviceId proxyId=$proxyId " +
+                        "stage=ignored-already-stopping"
+                )
+                return
+            }
             data.notification?.destroy()
             data.notification = null
             this as Service
@@ -270,6 +304,10 @@ class BaseService {
 
                 // change the state
                 data.changeState(State.Stopped, msg)
+                Logs.i(
+                    "ServiceStopTrace serviceId=$serviceId proxyId=$proxyId " +
+                        "stage=stopped restart=$restart"
+                )
                 // stop the service if nothing has bound to it
                 if (restart) startRunner() else {
                     stopSelf()
