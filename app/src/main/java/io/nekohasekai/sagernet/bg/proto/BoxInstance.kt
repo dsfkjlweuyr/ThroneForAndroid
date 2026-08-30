@@ -28,6 +28,7 @@ abstract class BoxInstance(
     val profile: ProxyEntity
 ) : AbstractInstance {
 
+    private val diagnosticId = Integer.toHexString(System.identityHashCode(this))
     lateinit var config: ConfigBuildResult
     lateinit var box: BoxInstance
 
@@ -210,7 +211,23 @@ abstract class BoxInstance(
 
     override fun launch() {
         launchExternal()
-        box.start()
+        Logs.i(
+            "BoxLifecycleTrace androidId=$diagnosticId profileId=${profile.id} " +
+                "stage=start begin"
+        )
+        try {
+            box.start()
+            Logs.i(
+                "BoxLifecycleTrace androidId=$diagnosticId profileId=${profile.id} " +
+                    "stage=start success"
+            )
+        } catch (error: Throwable) {
+            Logs.w(
+                "BoxLifecycleTrace androidId=$diagnosticId profileId=${profile.id} " +
+                    "stage=start failed type=${error.javaClass.name} message=${error.message}"
+            )
+            throw error
+        }
     }
 
     @Suppress("EXPERIMENTAL_API_USAGE")
@@ -226,7 +243,23 @@ abstract class BoxInstance(
         if (::processes.isInitialized) processes.close(GlobalScope + Dispatchers.IO)
 
         if (::box.isInitialized) {
-            box.close()
+            Logs.i(
+                "BoxLifecycleTrace androidId=$diagnosticId profileId=${profile.id} " +
+                    "stage=close begin"
+            )
+            try {
+                box.close()
+                Logs.i(
+                    "BoxLifecycleTrace androidId=$diagnosticId profileId=${profile.id} " +
+                        "stage=close success"
+                )
+            } catch (error: Throwable) {
+                Logs.w(
+                    "BoxLifecycleTrace androidId=$diagnosticId profileId=${profile.id} " +
+                        "stage=close failed type=${error.javaClass.name} message=${error.message}"
+                )
+                throw error
+            }
         }
     }
 

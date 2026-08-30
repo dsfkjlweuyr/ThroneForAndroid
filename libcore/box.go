@@ -99,6 +99,14 @@ func (b *BoxInstance) urlTestTrace(stage string, format string, args ...any) {
 	log.Printf(prefix+format, args...)
 }
 
+func (b *BoxInstance) lifecycleTrace(stage string, format string, args ...any) {
+	if b == nil || b.isURLTest {
+		return
+	}
+	prefix := fmt.Sprintf("BoxLifecycleTrace goId=%d stage=%s ", b.diagnosticID, stage)
+	log.Printf(prefix+format, args...)
+}
+
 func NewSingBoxInstance(config string, localTransport LocalDNSTransport) (b *BoxInstance, err error) {
 	return newSingBoxInstance(config, localTransport, true)
 }
@@ -222,6 +230,7 @@ func (b *BoxInstance) Start() (err error) {
 	defer b.access.Unlock()
 	started := time.Now()
 	b.urlTestTrace("box-start", "begin")
+	b.lifecycleTrace("start", "begin state=%d", b.state)
 
 	defer device.DeferPanicToError("box.Start", func(err_ error) { err = err_ })
 
@@ -230,11 +239,14 @@ func (b *BoxInstance) Start() (err error) {
 		err = b.Box.Start()
 		if err != nil {
 			b.urlTestTrace("box-start", "failed elapsed=%s error=%v", time.Since(started), err)
+			b.lifecycleTrace("start", "failed state=%d elapsed=%s error=%v", b.state, time.Since(started), err)
 		} else {
 			b.urlTestTrace("box-start", "ok elapsed=%s", time.Since(started))
+			b.lifecycleTrace("start", "success state=%d elapsed=%s", b.state, time.Since(started))
 		}
 		return err
 	}
+	b.lifecycleTrace("start", "rejected state=%d elapsed=%s", b.state, time.Since(started))
 	return errors.New("already started")
 }
 
@@ -243,12 +255,14 @@ func (b *BoxInstance) Close() (err error) {
 	defer b.access.Unlock()
 	started := time.Now()
 	b.urlTestTrace("box-close", "begin state=%d", b.state)
+	b.lifecycleTrace("close", "begin state=%d", b.state)
 
 	defer device.DeferPanicToError("box.Close", func(err_ error) { err = err_ })
 
 	// no double close
 	if b.state == 2 {
 		b.urlTestTrace("box-close", "skip already-closed elapsed=%s", time.Since(started))
+		b.lifecycleTrace("close", "skip already-closed elapsed=%s", time.Since(started))
 		return nil
 	}
 	b.state = 2
@@ -267,6 +281,7 @@ func (b *BoxInstance) Close() (err error) {
 		err = b.Box.Close()
 	}
 	b.urlTestTrace("box-close", "done elapsed=%s error=%v", time.Since(started), err)
+	b.lifecycleTrace("close", "done state=%d elapsed=%s error=%v", b.state, time.Since(started), err)
 	return err
 }
 

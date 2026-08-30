@@ -1259,6 +1259,45 @@ fun buildConfig(
             globalCustomConfig = if (forTest) "" else DataStore.globalCustomConfig,
             profileCustomConfig = proxy.requireBean().customConfigJson,
         )
+        val endpointTags = (configMap["endpoints"] as? List<*>)
+            .orEmpty()
+            .mapNotNull { (it as? Map<*, *>)?.get("tag")?.toString() }
+        val outboundNodes = (configMap["outbounds"] as? List<*>)
+            .orEmpty()
+            .mapNotNull { it as? Map<*, *> }
+        val outboundTags = outboundNodes.mapNotNull { it["tag"]?.toString() }
+        val availableTags = (endpointTags + outboundTags).toSet()
+        val references = buildList {
+            val endpointNodes = (configMap["endpoints"] as? List<*>)
+                .orEmpty()
+                .mapNotNull { it as? Map<*, *> }
+            (endpointNodes + outboundNodes).forEach { node ->
+                val source = node["tag"]?.toString() ?: "<untagged>"
+                node["detour"]?.toString()?.takeIf { it.isNotBlank() }?.let {
+                    add("$source->$it")
+                }
+                if (node["type"] == "selector") {
+                    (node["outbounds"] as? List<*>)?.forEach { target ->
+                        target?.toString()?.takeIf { it.isNotBlank() }?.let {
+                            add("$source=>$it")
+                        }
+                    }
+                }
+            }
+            val route = configMap["route"] as? Map<*, *>
+            route?.get("final")?.toString()?.takeIf { it.isNotBlank() }?.let {
+                add("route.final->$it")
+            }
+        }
+        val unresolvedTargets = references.mapNotNull { reference ->
+            reference.substringAfterLast("->", reference.substringAfterLast("=>"))
+                .takeUnless { it in availableTags }
+        }.distinct()
+        Logs.i(
+            "ChainTopologyTrace profileId=${proxy.id} forTest=$forTest " +
+                "endpoints=$endpointTags outbounds=$outboundTags " +
+                "references=$references unresolved=$unresolvedTargets"
+        )
         ConfigBuildResult(
             gson.toJson(configMap),
             externalIndexMap,

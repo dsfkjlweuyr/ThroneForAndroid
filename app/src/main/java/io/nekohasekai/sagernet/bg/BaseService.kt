@@ -245,6 +245,10 @@ class BaseService {
             DataStore.mixedInboundAuthed = false
 
             if (data.state == State.Stopping) return
+            Logs.i(
+                "ServiceStopTrace restart=$restart state=${data.state} " +
+                    "profileId=${data.proxy?.profile?.id ?: -1L} hasMessage=${msg != null}"
+            )
             data.notification?.destroy()
             data.notification = null
             this as Service
