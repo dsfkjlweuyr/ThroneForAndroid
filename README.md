@@ -15,18 +15,13 @@
 
 [GitHub Releases 下载](https://github.com/dsfkjlweuyr/ThroneForAndroid/releases)
 
-**Google Play 版本自 2024 年 5 月起已被第三方控制，为非开源版本，请不要下载。**
-
-**The Google Play version has been controlled by a third party since May 2024 and is a non-open
-source version. Please do not download it.**
-
 ## 交流反馈 / Feedback
 
 https://t.me/Matsuridayo
 
 ## 项目主页 & 文档 / Homepage & Documents
 
-https://matsuridayo.github.io
+https://throneproj.github.io
 
 ## 连接与速度测试 / Connection and Speed Tests
 
