@@ -195,7 +195,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                                 .text(R.string.github)
                                 .setOnClickAction {
                                     requireContext().launchCustomTab(
-                                        "https://github.com/dsfkjlweuyr/ThroneForAndroid"
+                                        "https://github.com/throneproj/ThroneForAndroid"
 
                                     )
                                 }
@@ -231,7 +231,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                         tryProxyOutbound()
                     }
                     val response = client.newRequest().apply {
-                        setURL("https://api.github.com/repos/dsfkjlweuyr/ThroneForAndroid/releases/latest")
+                        setURL("https://api.github.com/repos/throneproj/ThroneForAndroid/releases/latest")
                     }.execute()
                     val release = JSONObject(Util.getStringBox(response.contentString))
                     val releaseName = release.getString("name")

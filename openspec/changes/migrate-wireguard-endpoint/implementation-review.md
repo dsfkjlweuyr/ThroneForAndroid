@@ -13,9 +13,9 @@
 
 ## CI 证据
 
-- 最终 Preview Build：https://github.com/dsfkjlweuyr/ThroneForAndroid/actions/runs/32473153126
-- `Native Build (LibCore)`：成功，job https://github.com/dsfkjlweuyr/ThroneForAndroid/actions/runs/32473153126/job/96746216144
-- `Build OSS APK`：成功，job https://github.com/dsfkjlweuyr/ThroneForAndroid/actions/runs/32473153126/job/96746214940
+- 最终 Preview Build：https://github.com/throneproj/ThroneForAndroid/actions/runs/32473153126
+- `Native Build (LibCore)`：成功，job https://github.com/throneproj/ThroneForAndroid/actions/runs/32473153126/job/96746216144
+- `Build OSS APK`：成功，job https://github.com/throneproj/ThroneForAndroid/actions/runs/32473153126/job/96746214940
 - 最终 run 对应提交 `e4ea5ba87923305944d194170e2b3a3a3c1ad2fe`，包含 detour 修复、主路由 final 修复及其回归测试。
 
 ## 真机证据摘要
