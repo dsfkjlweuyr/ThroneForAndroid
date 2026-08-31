@@ -6,9 +6,9 @@
 
 ## 2. 批次 1 CI 与真机反馈门
 
-- [ ] 2.1 触发仓库适用的 Android CI workflow/unit-test job，要求新增配置构建测试及既有 `ConfigBuilderWireGuardTest` 等相关 JVM 测试通过；回传 workflow run URL、job 名称和失败时的完整测试名/堆栈。在结果确认前不得开始批次 3。
-- [ ] 2.2 在真机导入原复现数据，选择普通节点 2913，并保持路由规则同时引用共享节点 3045 与链 3046；预期 `ChainTopologyTrace unresolved=[]`、生成配置中链 detour 指向实际存在标签、服务成功连接。回传相关拓扑日志、启动成功日志及无 CrashHandler 的证据。
-- [ ] 2.3 以链 3046 作为主节点再验证一次正常连接与 URL Test，确认批次 1 没有回归原本可用的链优先构建路径；回传 `ChainTopologyTrace`、`BoxLifecycleTrace stage=start success` 和测试结果。
+- [x] 2.1 触发仓库适用的 Android CI workflow/unit-test job，要求新增配置构建测试及既有 `ConfigBuilderWireGuardTest` 等相关 JVM 测试通过；回传 workflow run URL、job 名称和失败时的完整测试名/堆栈。在结果确认前不得开始批次 3。
+- [x] 2.2 在真机导入原复现数据，选择普通节点 2913，并保持路由规则同时引用共享节点 3045 与链 3046；预期 `ChainTopologyTrace unresolved=[]`、生成配置中链 detour 指向实际存在标签、服务成功连接。回传相关拓扑日志、启动成功日志及无 CrashHandler 的证据。
+- [x] 2.3 以链 3046 作为主节点再验证一次正常连接与 URL Test，确认批次 1 没有回归原本可用的链优先构建路径；回传 `ChainTopologyTrace`、`BoxLifecycleTrace stage=start success` 和测试结果。
 
 ## 3. 修复启动失败后的幂等清理
 
