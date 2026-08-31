@@ -1,8 +1,8 @@
 ## 1. 修复共享链成员的最终标签解析
 
-- [ ] 1.1 在链边写入前解析并复用 `globalOutbounds` 中共享成员的最终标签，确保已先生成的成员不会留下 `g-<id>` 等悬空 detour，同时保持主链标签、`profileTagMap`、`trafficMap` 和可读名称语义不变。
-- [ ] 1.2 增加 Android JVM 回归测试，覆盖“普通主节点 + 独立规则引用共享节点 + 另一规则引用包含该节点的链”以及“链本身为主节点”两种构建顺序，并断言最终 endpoint/outbound、detour、selector 与 route final 引用全部可解析。
-- [ ] 1.3 将“链式配置引用必须解析到最终出站标签”同步到主 `android-application` 规范，运行不依赖 Android SDK/Go 的 OpenSpec 严格校验与仓库静态检查，并提交仅包含批次 1 的可审查改动。
+- [x] 1.1 在链边写入前解析并复用 `globalOutbounds` 中共享成员的最终标签，确保已先生成的成员不会留下 `g-<id>` 等悬空 detour，同时保持主链标签、`profileTagMap`、`trafficMap` 和可读名称语义不变。
+- [x] 1.2 增加 Android JVM 回归测试，覆盖“普通主节点 + 独立规则引用共享节点 + 另一规则引用包含该节点的链”以及“链本身为主节点”两种构建顺序，并断言最终 endpoint/outbound、detour、selector 与 route final 引用全部可解析。
+- [x] 1.3 将“链式配置引用必须解析到最终出站标签”同步到主 `android-application` 规范，运行不依赖 Android SDK/Go 的 OpenSpec 严格校验与仓库静态检查，并提交仅包含批次 1 的可审查改动。
 
 ## 2. 批次 1 CI 与真机反馈门
 

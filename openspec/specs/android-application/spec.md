@@ -35,6 +35,24 @@
 - **THEN** 输出可被目标官方内核 schema 接受
 - **AND** 不包含已移除的入站 sniff、legacy TUN 地址或 `route.concurrent_dial` 字段
 
+### Requirement: 链式配置引用必须解析到最终出站标签
+
+Android 配置生成器 MUST 在写入链式 detour、selector 成员或最终路由引用前确定被引用节点的最终标签。当同一节点既作为独立规则出站又作为另一条链的成员时，生成配置中的全部引用 MUST 指向实际存在的 endpoint 或 outbound 标签；构建顺序 MUST NOT 产生悬空引用。
+
+#### Scenario: 共享节点先于包含它的链生成
+
+- **GIVEN** 当前主节点是普通节点，路由规则同时引用共享节点和包含该共享节点的链式代理
+- **WHEN** 应用生成正式连接配置，且共享节点先于链式代理生成
+- **THEN** 链中前一跳的 detour 指向共享节点已生成的最终标签
+- **AND** 最终配置不存在无法解析的 endpoint、outbound、selector 或 route final 引用
+
+#### Scenario: 包含共享节点的链先生成
+
+- **GIVEN** 当前主节点本身是包含共享节点的链式代理
+- **WHEN** 应用生成正式连接配置
+- **THEN** 链中的每个 detour 指向实际生成的后继标签
+- **AND** 后续规则复用该节点时不得产生重复或悬空标签
+
 ### Requirement: DNS 路由避免意外泄露
 
 本机直解场景中的 `hosts` MUST 归一化为 `local`。远程 DNS 遇到 `hosts`、`local`、`localhost` 或 `fakeip` 占位符时 MUST 回退至明确的远程 DoH 地址并提示用户；远程 DNS MUST 显式经当前代理节点 detour。订阅自定义服务器 DNS 的 UI MUST 保持暂停开放，直到上游语义明确且强制解析、批量测速、正式连接三条路径能够一致实现。
