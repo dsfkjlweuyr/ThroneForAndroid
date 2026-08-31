@@ -11,4 +11,4 @@ assignees: ''
 
 ## Expected priority
 
-P1/P2/P3
+Urgent/High/Medium/Low
