@@ -232,15 +232,38 @@ abstract class BoxInstance(
 
     @Suppress("EXPERIMENTAL_API_USAGE")
     override fun close() {
-        for (instance in externalInstances.values) {
-            runCatching {
-                instance.close()
+        var closeError: Throwable? = null
+        fun recordCloseError(error: Throwable) {
+            if (closeError == null) {
+                closeError = error
+            } else if (closeError !== error) {
+                closeError?.addSuppressed(error)
+            }
+        }
+
+        for ((port, instance) in externalInstances) {
+            runCatching { instance.close() }.onFailure { error ->
+                Logs.w(
+                    "BoxLifecycleTrace androidId=$diagnosticId profileId=${profile.id} " +
+                        "stage=close-external failed port=$port " +
+                        "type=${error.javaClass.name} message=${error.message}"
+                )
+                recordCloseError(error)
             }
         }
 
         cacheFiles.removeAll { it.delete(); true }
 
-        if (::processes.isInitialized) processes.close(GlobalScope + Dispatchers.IO)
+        if (::processes.isInitialized) {
+            runCatching { processes.close(GlobalScope + Dispatchers.IO) }.onFailure { error ->
+                Logs.w(
+                    "BoxLifecycleTrace androidId=$diagnosticId profileId=${profile.id} " +
+                        "stage=close-processes failed " +
+                        "type=${error.javaClass.name} message=${error.message}"
+                )
+                recordCloseError(error)
+            }
+        }
 
         if (::box.isInitialized) {
             Logs.i(
@@ -258,9 +281,11 @@ abstract class BoxInstance(
                     "BoxLifecycleTrace androidId=$diagnosticId profileId=${profile.id} " +
                         "stage=close failed type=${error.javaClass.name} message=${error.message}"
                 )
-                throw error
+                recordCloseError(error)
             }
         }
+
+        closeError?.let { throw it }
     }
 
 }

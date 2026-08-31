@@ -53,6 +53,18 @@ Android 配置生成器 MUST 在写入链式 detour、selector 成员或最终�
 - **THEN** 链中的每个 detour 指向实际生成的后继标签
 - **AND** 后续规则复用该节点时不得产生重复或悬空标签
 
+### Requirement: 服务启动失败不得导致应用进程崩溃
+
+Android 后台服务 MUST 将配置无效、依赖缺失或内核启动失败报告为服务启动失败，并 MUST 清理已部分初始化的 VPN、插件和 box 资源。清理已关闭资源时产生的可识别关闭完成状态 MUST NOT 作为主线程未处理异常导致 `:bg` 进程崩溃；原始启动错误 MUST 保留为用户可读错误和诊断日志。
+
+#### Scenario: 内核启动回滚后服务执行清理
+
+- **GIVEN** sing-box 在部分启动后因配置依赖错误失败，并已回滚关闭部分资源
+- **WHEN** Android 服务执行失败清理
+- **THEN** 服务进入停止状态且不触发崩溃处理器
+- **AND** 用户看到原始启动失败原因，而不是后续的已关闭资源错误
+- **AND** 清理阶段的异常状态被记录用于诊断
+
 ### Requirement: DNS 路由避免意外泄露
 
 本机直解场景中的 `hosts` MUST 归一化为 `local`。远程 DNS 遇到 `hosts`、`local`、`localhost` 或 `fakeip` 占位符时 MUST 回退至明确的远程 DoH 地址并提示用户；远程 DNS MUST 显式经当前代理节点 detour。订阅自定义服务器 DNS 的 UI MUST 保持暂停开放，直到上游语义明确且强制解析、批量测速、正式连接三条路径能够一致实现。

@@ -29,6 +29,25 @@ libcore MUST 使用 `SagerNet/sing-box` 官方源码，版本由 `SINGBOX_VERSIO
 - **THEN** 更新作用于该 box 自己的 NetworkManager
 - **AND** 各 box 都能选择可用物理接口
 
+### Requirement: box 启动失败后的关闭必须安全且幂等
+
+libcore box 生命周期 MUST 区分未启动、启动中或部分失败、已启动和已关闭状态。启动失败后调用关闭 MUST 能安全释放尚存资源；同一实例的后续关闭 MUST 保持幂等。若底层启动回滚已关闭资源，libcore MUST NOT 以等价于“已关闭”的返回覆盖原始启动错误或使 JNI 调用方发生未处理异常；其他非预期关闭错误 MUST 保留诊断并返回给受控错误边界。
+
+#### Scenario: 部分启动失败后首次关闭
+
+- **GIVEN** 底层 box 启动时因 outbound 依赖缺失失败，并在内部回滚中关闭资源
+- **WHEN** Android 通过 JNI 请求关闭该 box
+- **THEN** libcore 将实例标记为已关闭并完成剩余清理
+- **AND** 等价于资源已关闭的结果不覆盖原始启动错误
+- **AND** 调用方不会因该关闭结果产生未处理异常
+
+#### Scenario: 已关闭实例再次关闭
+
+- **GIVEN** box 已完成正常关闭或失败回滚清理
+- **WHEN** 调用方再次请求关闭同一实例
+- **THEN** 关闭操作成功返回且不重复释放底层资源
+- **AND** 生命周期日志能够区分首次关闭和幂等跳过
+
 ### Requirement: 默认网络变化遵循官方重置语义
 
 默认接口监视器 MUST 在接口 name/index 变化时通知官方 NetworkManager，并在解析失败时保留旧接口。Android OEM 接口查找失败时 MAY 依次回退到 NetworkManager 缓存、系统接口和 Kotlin 上报的信息。`networkChangeResetConnections=false` 时普通变化 MUST 只更新默认接口而不触发 ResetNetwork；从无网络恢复时仍 MUST 通知 NetworkWake。正常切网 MUST NOT 由 Kotlin 层额外重复重置。

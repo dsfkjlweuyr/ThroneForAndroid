@@ -51,8 +51,9 @@ class VpnService : BaseVpnService(),
     }
 
     @Suppress("EXPERIMENTAL_API_USAGE")
-    override fun killProcesses() {
+    override suspend fun killProcesses(): Throwable? {
         val currentConnection = conn
+        var cleanupError: Throwable? = null
         Logs.i(
             "VpnLifecycleTrace stage=tun-close begin " +
                 "hasConnection=${currentConnection != null}"
@@ -65,11 +66,21 @@ class VpnService : BaseVpnService(),
                 "VpnLifecycleTrace stage=tun-close failed " +
                     "type=${error.javaClass.name} message=${error.message}"
             )
-            throw error
+            cleanupError = error
         } finally {
             conn = null
         }
-        super.killProcesses()
+        super.killProcesses()?.let { error ->
+            if (cleanupError == null) {
+                cleanupError = error
+            } else if (cleanupError !== error) {
+                cleanupError?.addSuppressed(error)
+            }
+        }
+        Logs.i(
+            "VpnLifecycleTrace stage=kill done hasCleanupError=${cleanupError != null}"
+        )
+        return cleanupError
     }
 
     override fun onBind(intent: Intent) = when (intent.action) {

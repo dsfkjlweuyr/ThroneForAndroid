@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"os"
 	"runtime"
 	"runtime/debug"
 	"strings"
@@ -34,6 +35,36 @@ import (
 
 var mainInstance *BoxInstance
 var boxInstanceSequence atomic.Uint64
+
+type boxLifecycleState uint8
+
+const (
+	boxStateNew boxLifecycleState = iota
+	boxStateStarting
+	boxStateStarted
+	boxStateStartFailed
+	boxStateClosing
+	boxStateClosed
+)
+
+func (s boxLifecycleState) String() string {
+	switch s {
+	case boxStateNew:
+		return "new"
+	case boxStateStarting:
+		return "starting"
+	case boxStateStarted:
+		return "started"
+	case boxStateStartFailed:
+		return "start-failed"
+	case boxStateClosing:
+		return "closing"
+	case boxStateClosed:
+		return "closed"
+	default:
+		return fmt.Sprintf("unknown(%d)", s)
+	}
+}
 
 func VersionBox() string {
 	version := []string{
@@ -80,7 +111,11 @@ type BoxInstance struct {
 
 	*box.Box
 	cancel context.CancelFunc
-	state  int
+	state  boxLifecycleState
+
+	startBox func() error
+	closeBox func() error
+	startErr error
 
 	v2api        *v2rayapi.StatsService
 	selector     *group.Selector
@@ -208,6 +243,8 @@ func newSingBoxInstance(config string, localTransport LocalDNSTransport, platfor
 	b = &BoxInstance{
 		Box:           instance,
 		cancel:        cancel,
+		startBox:      instance.Start,
+		closeBox:      instance.Close,
 		pauseManager:  service.FromContext[pause.Manager](ctx),
 		diagnosticID:  diagnosticID,
 		diagnosticTag: diagnosticTag,
@@ -230,42 +267,63 @@ func (b *BoxInstance) Start() (err error) {
 	defer b.access.Unlock()
 	started := time.Now()
 	b.urlTestTrace("box-start", "begin")
-	b.lifecycleTrace("start", "begin state=%d", b.state)
+	b.lifecycleTrace("start", "begin state=%s", b.state)
 
+	if b.state != boxStateNew {
+		b.lifecycleTrace("start", "rejected state=%s elapsed=%s", b.state, time.Since(started))
+		return errors.New("already started")
+	}
+
+	b.state = boxStateStarting
+	defer func() {
+		if err != nil {
+			b.state = boxStateStartFailed
+			b.startErr = err
+			b.urlTestTrace("box-start", "failed elapsed=%s error=%v", time.Since(started), err)
+			b.lifecycleTrace("start", "failed state=%s elapsed=%s error=%v", b.state, time.Since(started), err)
+		} else {
+			b.state = boxStateStarted
+			b.urlTestTrace("box-start", "ok elapsed=%s", time.Since(started))
+			b.lifecycleTrace("start", "success state=%s elapsed=%s", b.state, time.Since(started))
+		}
+	}()
 	defer device.DeferPanicToError("box.Start", func(err_ error) { err = err_ })
 
-	if b.state == 0 {
-		b.state = 1
+	if b.startBox != nil {
+		err = b.startBox()
+	} else if b.Box != nil {
 		err = b.Box.Start()
-		if err != nil {
-			b.urlTestTrace("box-start", "failed elapsed=%s error=%v", time.Since(started), err)
-			b.lifecycleTrace("start", "failed state=%d elapsed=%s error=%v", b.state, time.Since(started), err)
-		} else {
-			b.urlTestTrace("box-start", "ok elapsed=%s", time.Since(started))
-			b.lifecycleTrace("start", "success state=%d elapsed=%s", b.state, time.Since(started))
-		}
-		return err
+	} else {
+		err = errors.New("box is nil")
 	}
-	b.lifecycleTrace("start", "rejected state=%d elapsed=%s", b.state, time.Since(started))
-	return errors.New("already started")
+	return err
 }
 
 func (b *BoxInstance) Close() (err error) {
 	b.access.Lock()
 	defer b.access.Unlock()
 	started := time.Now()
-	b.urlTestTrace("box-close", "begin state=%d", b.state)
-	b.lifecycleTrace("close", "begin state=%d", b.state)
+	b.urlTestTrace("box-close", "begin state=%s", b.state)
+	b.lifecycleTrace("close", "begin state=%s", b.state)
 
-	defer device.DeferPanicToError("box.Close", func(err_ error) { err = err_ })
-
-	// no double close
-	if b.state == 2 {
+	if b.state == boxStateClosed {
 		b.urlTestTrace("box-close", "skip already-closed elapsed=%s", time.Since(started))
 		b.lifecycleTrace("close", "skip already-closed elapsed=%s", time.Since(started))
 		return nil
 	}
-	b.state = 2
+	previousState := b.state
+	b.state = boxStateClosing
+	defer func() {
+		b.state = boxStateClosed
+		if errors.Is(err, os.ErrClosed) {
+			b.urlTestTrace("box-close", "normalized already-closed previous=%s elapsed=%s", previousState, time.Since(started))
+			b.lifecycleTrace("close", "normalized already-closed previous=%s elapsed=%s startError=%v", previousState, time.Since(started), b.startErr)
+			err = nil
+		}
+		b.urlTestTrace("box-close", "done state=%s elapsed=%s error=%v", b.state, time.Since(started), err)
+		b.lifecycleTrace("close", "done state=%s previous=%s elapsed=%s error=%v", b.state, previousState, time.Since(started), err)
+	}()
+	defer device.DeferPanicToError("box.Close", func(err_ error) { err = err_ })
 
 	// clear main instance
 	if mainInstance == b {
@@ -277,11 +335,11 @@ func (b *BoxInstance) Close() (err error) {
 	if b.cancel != nil {
 		b.cancel()
 	}
-	if b.Box != nil {
+	if b.closeBox != nil {
+		err = b.closeBox()
+	} else if b.Box != nil {
 		err = b.Box.Close()
 	}
-	b.urlTestTrace("box-close", "done elapsed=%s error=%v", time.Since(started), err)
-	b.lifecycleTrace("close", "done state=%d elapsed=%s error=%v", b.state, time.Since(started), err)
 	return err
 }
 
