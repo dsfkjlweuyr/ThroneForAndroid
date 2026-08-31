@@ -9,6 +9,12 @@ plugins {
 
 setupApp()
 
+val generatedLicenseAssets = layout.buildDirectory.dir("generated/assets/rootLicense")
+val generateRootLicenseAsset by tasks.registering(Copy::class) {
+    from(rootProject.layout.projectDirectory.file("LICENSE"))
+    into(generatedLicenseAssets)
+}
+
 android {
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
@@ -36,6 +42,13 @@ android {
     androidResources {
         generateLocaleConfig = true
     }
+    sourceSets.named("main") {
+        assets.srcDir(generatedLicenseAssets)
+    }
+}
+
+tasks.matching { it.name == "preBuild" }.configureEach {
+    dependsOn(generateRootLicenseAsset)
 }
 
 dependencies {
