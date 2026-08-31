@@ -19,7 +19,7 @@
 
 ## 4. 批次 2 CI 与真机反馈门
 
-- [ ] 4.1 触发适用的 libcore 构建/Go test job 和 Android unit-test/build job；预期 box 生命周期测试、Android 清理契约测试和完整构建通过。回传 workflow run URL、job 名称、目标 `SINGBOX_VERSION` 以及失败时的完整测试/构建日志。
-- [ ] 4.2 真机使用可控的无效 outbound 依赖或测试配置触发 sing-box 部分启动失败；预期用户收到原始依赖错误，`ServiceStopTrace` 收敛到 stopped，Go/Android close 日志显示安全清理，且不存在 `CrashHandler`、Phoenix 重生或 `:bg` Fatal。回传从 Start failed 到 stopped 的连续日志。
-- [ ] 4.3 真机正常启动并停止有效的普通节点与链式节点各一次，再快速重复停止/启动；预期首次关闭成功、重复请求被幂等处理、后续仍可连接。回传对应实例 ID 的完整 `ServiceLifecycleTrace`、`VpnLifecycleTrace` 和 `BoxLifecycleTrace`。
+- [x] 4.1 触发适用的 libcore 构建/Go test job 和 Android unit-test/build job；预期 box 生命周期测试、Android 清理契约测试和完整构建通过。回传 workflow run URL、job 名称、目标 `SINGBOX_VERSION` 以及失败时的完整测试/构建日志。
+- [x] 4.2 真机使用可控的无效 outbound 依赖或测试配置触发 sing-box 部分启动失败；预期用户收到原始依赖错误，`ServiceStopTrace` 收敛到 stopped，Go/Android close 日志显示安全清理，且不存在 `CrashHandler`、Phoenix 重生或 `:bg` Fatal。回传从 Start failed 到 stopped 的连续日志。
+- [x] 4.3 真机正常启动并停止有效的普通节点与链式节点各一次，再快速重复停止/启动；预期首次关闭成功、重复请求被幂等处理、后续仍可连接。回传对应实例 ID 的完整 `ServiceLifecycleTrace`、`VpnLifecycleTrace` 和 `BoxLifecycleTrace`。
 
