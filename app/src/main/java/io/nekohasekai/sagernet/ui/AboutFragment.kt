@@ -13,6 +13,7 @@ import android.text.Spanned
 import android.text.style.ForegroundColorSpan
 import android.text.util.Linkify
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.component1
 import androidx.activity.result.component2
@@ -64,6 +65,30 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
     }
 
     class AboutContent : MaterialAboutFragment() {
+
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
+            view.layoutParams = view.layoutParams.apply {
+                height = ViewGroup.LayoutParams.WRAP_CONTENT
+            }
+            val recyclerView = requireNotNull(findRecyclerView(view)) {
+                "MaterialAboutFragment did not provide a RecyclerView"
+            }
+            recyclerView.isNestedScrollingEnabled = false
+            recyclerView.overScrollMode = View.OVER_SCROLL_NEVER
+            recyclerView.layoutParams = recyclerView.layoutParams.apply {
+                height = ViewGroup.LayoutParams.WRAP_CONTENT
+            }
+        }
+
+        private fun findRecyclerView(view: View): RecyclerView? {
+            if (view is RecyclerView) return view
+            if (view !is ViewGroup) return null
+            for (index in 0 until view.childCount) {
+                findRecyclerView(view.getChildAt(index))?.let { return it }
+            }
+            return null
+        }
 
         val requestIgnoreBatteryOptimizations = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
