@@ -66,30 +66,6 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
 
     class AboutContent : MaterialAboutFragment() {
 
-        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            super.onViewCreated(view, savedInstanceState)
-            view.layoutParams = view.layoutParams.apply {
-                height = ViewGroup.LayoutParams.WRAP_CONTENT
-            }
-            val recyclerView = requireNotNull(findRecyclerView(view)) {
-                "MaterialAboutFragment did not provide a RecyclerView"
-            }
-            recyclerView.isNestedScrollingEnabled = false
-            recyclerView.overScrollMode = View.OVER_SCROLL_NEVER
-            recyclerView.layoutParams = recyclerView.layoutParams.apply {
-                height = ViewGroup.LayoutParams.WRAP_CONTENT
-            }
-        }
-
-        private fun findRecyclerView(view: View): RecyclerView? {
-            if (view is RecyclerView) return view
-            if (view !is ViewGroup) return null
-            for (index in 0 until view.childCount) {
-                findRecyclerView(view.getChildAt(index))?.let { return it }
-            }
-            return null
-        }
-
         val requestIgnoreBatteryOptimizations = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { (resultCode, _) ->
@@ -243,8 +219,15 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
 
+            view.layoutParams = view.layoutParams.apply {
+                height = ViewGroup.LayoutParams.WRAP_CONTENT
+            }
             view.findViewById<RecyclerView>(R.id.mal_recyclerview).apply {
-                overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+                isNestedScrollingEnabled = false
+                overScrollMode = View.OVER_SCROLL_NEVER
+                layoutParams = layoutParams.apply {
+                    height = ViewGroup.LayoutParams.WRAP_CONTENT
+                }
             }
         }
 

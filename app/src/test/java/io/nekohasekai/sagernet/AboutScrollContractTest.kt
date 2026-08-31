@@ -21,8 +21,12 @@ class AboutScrollContractTest {
                 .contains("android:layout_height=\"wrap_content\"")
         )
         assertTrue(source.contains("view.layoutParams = view.layoutParams.apply"))
-        assertTrue(source.contains("findRecyclerView(view)"))
-        assertTrue(source.contains("recyclerView.isNestedScrollingEnabled = false"))
+        assertTrue(source.contains("findViewById<RecyclerView>(R.id.mal_recyclerview)"))
+        assertTrue(source.contains("isNestedScrollingEnabled = false"))
         assertTrue(source.contains("height = ViewGroup.LayoutParams.WRAP_CONTENT"))
+        assertTrue(
+            source.windowed("override fun onViewCreated".length)
+                .count { it == "override fun onViewCreated" } == 2
+        )
     }
 }
