@@ -73,11 +73,32 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/license"
-                        android:textAppearance="?attr/textAppearanceSubtitle2" />
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/license"
+                            android:textAppearance="?attr/textAppearanceSubtitle2" />
+
+                        <TextView
+                            android:id="@+id/license_toggle"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:contentDescription="@string/license"
+                            android:focusable="true"
+                            android:gravity="center"
+                            android:text="▼"
+                            android:textAppearance="?attr/textAppearanceSubtitle2" />
+
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/license"

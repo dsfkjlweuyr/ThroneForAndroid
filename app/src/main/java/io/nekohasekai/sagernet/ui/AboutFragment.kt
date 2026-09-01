@@ -53,10 +53,16 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
         toolbar.setTitle(R.string.menu_about)
 
         binding.license.maxLines = LICENSE_COLLAPSED_MAX_LINES
-        binding.license.setOnClickListener {
+        var isLicenseExpanded = false
+        binding.licenseToggle.setOnClickListener {
             val scrollY = binding.aboutScroll.scrollY
-            binding.license.maxLines = Int.MAX_VALUE
-            binding.license.setOnClickListener(null)
+            isLicenseExpanded = !isLicenseExpanded
+            binding.license.maxLines = if (isLicenseExpanded) {
+                Int.MAX_VALUE
+            } else {
+                LICENSE_COLLAPSED_MAX_LINES
+            }
+            binding.licenseToggle.text = if (isLicenseExpanded) "▲" else "▼"
             binding.aboutScroll.doOnPreDraw {
                 binding.aboutScroll.scrollTo(0, scrollY)
             }
