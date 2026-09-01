@@ -86,3 +86,22 @@ sing-box 版本 MUST 以 `nb4a.properties` 的 `SINGBOX_VERSION` 为唯一真实
 - **WHEN** GitHub Actions 构建 libcore
 - **THEN** 构建脚本获取并校验对应官方 tag
 - **AND** 缓存键失效以重新生成 AAR
+
+### Requirement: 发布与预览工作流分离
+
+GitHub Actions MUST 通过 `.github/workflows/release.yml` 和 `.github/workflows/preview.yml` 分离正式发布与预览构建。正式发布工作流 MUST 仅允许手动触发，MUST 从 `nb4a.properties` 的 `VERSION_NAME` 获取版本，并 MUST 使用 `v${VERSION_NAME}` 作为 GitHub Release 的 tag 和标题，同时将构建出的 APK 作为 Release 附件发布。预览工作流 MUST 在 `nb4a.properties` 发生推送变更时自动构建，且其 APK 的 application ID MUST 为 `com.nb4a.throne.debug`，以便与正式版本共存。
+
+#### Scenario: 手动发布正式版本
+
+- **GIVEN** `nb4a.properties` 中的 `VERSION_NAME` 为 `1.2.3`
+- **WHEN** 维护者手动运行 Release workflow
+- **THEN** 工作流构建 APK 并创建 tag 为 `v1.2.3` 的 GitHub Release
+- **AND** Release 标题为 `v1.2.3`
+- **AND** 构建出的 APK 已附加到该 Release
+
+#### Scenario: 属性文件变更触发预览构建
+
+- **GIVEN** 维护者提交并推送了 `nb4a.properties` 的变更
+- **WHEN** Preview workflow 被自动触发
+- **THEN** 工作流构建预览 APK
+- **AND** APK 的 application ID 为 `com.nb4a.throne.debug`

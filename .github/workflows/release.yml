@@ -1,13 +1,11 @@
-name: Release Build
+name: Release
+
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: "Release Tag"
-        required: true
-      publish:
-        description: "Publish: If want ignore"
-        required: false
+
+permissions:
+  contents: write
+
 jobs:
   libcore:
     name: Native Build (LibCore)
@@ -34,6 +32,20 @@ jobs:
       - name: Native Build
         if: steps.cache.outputs.cache-hit != 'true'
         run: ./run lib core
+      - name: Verify LibCore AAR
+        run: |
+          test -s app/libs/libcore.aar
+          unzip -p app/libs/libcore.aar classes.jar > /tmp/libcore-classes.jar
+          unzip -l /tmp/libcore-classes.jar | grep -q 'libcore/Libcore.class'
+          unzip -l /tmp/libcore-classes.jar | grep -q 'go/Seq.class'
+      - name: Upload LibCore AAR
+        uses: actions/upload-artifact@v5
+        with:
+          name: libcore-aar
+          path: app/libs/libcore.aar
+          if-no-files-found: error
+          retention-days: 1
+
   build:
     name: Build OSS APK
     runs-on: ubuntu-latest
@@ -42,16 +54,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-      - name: Golang Status
-        run: find buildScript libcore/*.sh nb4a.properties | xargs cat | sha1sum > golang_status
-      - name: Libcore Status
-        run: git ls-files libcore | xargs cat | sha1sum > libcore_status
-      - name: LibCore Cache
-        uses: actions/cache@v5
+      - name: Download LibCore AAR
+        uses: actions/download-artifact@v5
         with:
-          path: |
-            app/libs/libcore.aar
-          key: ${{ hashFiles('.github/workflows/*', 'golang_status', 'libcore_status') }}
+          name: libcore-aar
+          path: app/libs
+      - name: Verify LibCore AAR
+        run: |
+          test -s app/libs/libcore.aar
+          unzip -p app/libs/libcore.aar classes.jar > /tmp/libcore-classes.jar
+          unzip -l /tmp/libcore-classes.jar | grep -q 'libcore/Libcore.class'
+          unzip -l /tmp/libcore-classes.jar | grep -q 'go/Seq.class'
       - name: Gradle cache
         uses: actions/cache@v5
         with:
@@ -65,32 +78,68 @@ jobs:
           echo "ndk.dir=${ANDROID_HOME}/ndk/25.0.8775105" >> local.properties
           export LOCAL_PROPERTIES="${{ secrets.LOCAL_PROPERTIES }}"
           ./run init action gradle
-          KEYSTORE_PASS="${{ secrets.KEYSTORE_PASS }}" ALIAS_NAME="${{ secrets.ALIAS_NAME }}" ALIAS_PASS="${{ secrets.ALIAS_PASS}}" ./gradlew app:assembleOssRelease
+          ./gradlew app:assemblePreviewRelease
+
+          # Sign unsigned APKs with fixed debug keystore if available, otherwise fallback to dynamic generation
+          KEYSTORE_PATH="debug.keystore"
+          if [ -f "$KEYSTORE_PATH" ]; then
+            echo "Using fixed debug keystore from repository..."
+          else
+            echo "WARNING: Fixed debug keystore not found at $KEYSTORE_PATH!"
+            echo "Please run the 'Initialize Debug Keystore' workflow first."
+            echo "Falling back to dynamic debug.keystore generation..."
+            KEYSTORE_PATH="$HOME/.android/debug.keystore"
+            if [ ! -f "$KEYSTORE_PATH" ]; then
+              mkdir -p ~/.android
+              keytool -genkey -v -keystore "$KEYSTORE_PATH" -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+            fi
+          fi
+
+          APKSIGNER=$(find ${ANDROID_HOME}/build-tools -name apksigner | sort -V | tail -n 1)
+          if [ -z "$APKSIGNER" ]; then
+            APKSIGNER="apksigner"
+          fi
+          echo "Using apksigner: $APKSIGNER"
+
           APK=$(find app/build/outputs/apk -name '*arm64-v8a*.apk')
-          APK=$(dirname $APK)
-          echo "APK=$APK" >> $GITHUB_ENV
-      - uses: actions/upload-artifact@v7
+          APK_DIR=$(dirname $APK)
+
+          echo "Signing APKs in $APK_DIR..."
+          for apk in "$APK_DIR"/*-unsigned.apk; do
+            if [ -f "$apk" ]; then
+              signed_apk="${apk%-unsigned.apk}-debug-signed.apk"
+              echo "Signing $apk -> $signed_apk"
+              $APKSIGNER sign --ks "$KEYSTORE_PATH" --ks-pass pass:android --key-pass pass:android --out "$signed_apk" "$apk"
+              rm "$apk"
+            fi
+          done
+
+          echo "APK=$APK_DIR" >> $GITHUB_ENV
+      - uses: actions/upload-artifact@v5
         with:
           name: APKs
           path: ${{ env.APK }}
+
   publish:
     name: Publish Release
-    if: github.event.inputs.publish != 'y'
     runs-on: ubuntu-latest
-    needs: build
+    needs:
+      - build
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-      - name: Donwload Artifacts
+      - name: Download APKs
         uses: actions/download-artifact@v5
         with:
           name: APKs
           path: artifacts
-      - name: Release
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          wget -O ghr.tar.gz https://github.com/tcnksm/ghr/releases/download/v0.13.0/ghr_v0.13.0_linux_amd64.tar.gz
-          tar -xvf ghr.tar.gz
-          mv ghr*linux_amd64/ghr .
-          mkdir apks
-          find artifacts -name "*.apk" -exec cp {} apks \;
-          ./ghr -delete -t "${{ github.token }}" -n "${{ github.event.inputs.tag }}" "${{ github.event.inputs.tag }}" apks
+          VERSION_NAME=$(sed -n 's/^VERSION_NAME=//p' nb4a.properties)
+          test -n "$VERSION_NAME"
+          TAG="v${VERSION_NAME}"
+          mapfile -t APKS < <(find artifacts -type f -name '*.apk')
+          test "${#APKS[@]}" -gt 0
+          gh release create "$TAG" "${APKS[@]}" --title "$TAG" --generate-notes
