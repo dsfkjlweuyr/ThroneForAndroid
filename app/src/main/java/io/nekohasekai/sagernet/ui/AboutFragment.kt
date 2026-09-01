@@ -62,7 +62,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
             } else {
                 LICENSE_COLLAPSED_MAX_LINES
             }
-            binding.licenseToggle.text = if (isLicenseExpanded) "▲" else "▼"
+            binding.licenseIndicator.text = if (isLicenseExpanded) "▲" else "▼"
             binding.aboutScroll.doOnPreDraw {
                 binding.aboutScroll.scrollTo(0, scrollY)
             }
