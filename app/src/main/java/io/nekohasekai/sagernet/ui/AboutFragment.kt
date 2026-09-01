@@ -20,6 +20,7 @@ import androidx.activity.result.component2
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.doOnPreDraw
 import androidx.recyclerview.widget.RecyclerView
 import com.danielstone.materialaboutlibrary.MaterialAboutFragment
 import com.danielstone.materialaboutlibrary.items.MaterialAboutActionItem
@@ -51,6 +52,16 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
         ViewCompat.setOnApplyWindowInsetsListener(view, ListListener)
         toolbar.setTitle(R.string.menu_about)
 
+        binding.license.maxLines = LICENSE_COLLAPSED_MAX_LINES
+        binding.license.setOnClickListener {
+            val scrollY = binding.aboutScroll.scrollY
+            binding.license.maxLines = Int.MAX_VALUE
+            binding.license.setOnClickListener(null)
+            binding.aboutScroll.doOnPreDraw {
+                binding.aboutScroll.scrollTo(0, scrollY)
+            }
+        }
+
         parentFragmentManager.beginTransaction()
             .replace(R.id.about_fragment_holder, AboutContent())
             .commitAllowingStateLoss()
@@ -62,6 +73,10 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                 Linkify.addLinks(binding.license, Linkify.EMAIL_ADDRESSES or Linkify.WEB_URLS)
             }
         }
+    }
+
+    companion object {
+        private const val LICENSE_COLLAPSED_MAX_LINES = 8
     }
 
     class AboutContent : MaterialAboutFragment() {
