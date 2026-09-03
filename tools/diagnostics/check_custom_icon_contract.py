@@ -24,6 +24,7 @@ assert 'entryName.contains("..")' in manager_code, "Path traversal protection mi
 
 # 检查尺寸解析与 alpha 提取
 assert "fun parsePngHeader" in manager_code, "parsePngHeader missing"
+assert "return Pair(width, height)" in manager_code, "return statement in parsePngHeader missing"
 assert "fun loadTileAlphaBitmap" in manager_code, "loadTileAlphaBitmap missing"
 assert "fun extractAlphaMask" in manager_code, "extractAlphaMask missing"
 assert "fun reset" in manager_code, "reset missing"

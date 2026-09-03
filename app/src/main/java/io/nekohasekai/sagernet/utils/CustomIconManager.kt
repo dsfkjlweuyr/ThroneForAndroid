@@ -168,7 +168,7 @@ object CustomIconManager {
         val dis = DataInputStream(ByteArrayInputStream(header, 16, 8))
         val width = dis.readInt()
         val height = dis.readInt()
-        Pair(width, height)
+        return Pair(width, height)
     }
 
     /**
