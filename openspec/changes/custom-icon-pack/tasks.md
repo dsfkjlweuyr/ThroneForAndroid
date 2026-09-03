@@ -16,7 +16,7 @@
 - [x] 2.3 实现 `CustomIconFragment`（继承 `NamedFragment`），注册 ActivityResult 启动文件选择器，处理导入结果与异常反馈（Snackbar/Toast）。
 - [x] 2.4 在 `CustomIconFragment` 中实现磁贴开关交互模拟：直接渲染 `icon.png` 原图，提取 `tile.png` 的 Alpha 通道作为单色蒙版，点击磁贴卡片可在 Active（开启高亮）与 Inactive（关闭次级）视觉状态间切换。
 - [x] 2.5 在 [`app/src/main/java/io/nekohasekai/sagernet/ui/ToolsFragment.kt`](app/src/main/java/io/nekohasekai/sagernet/ui/ToolsFragment.kt) 的工具列表中挂载 `CustomIconFragment`。
-- [ ] 2.6 **批次 2 验证门禁**：
+- [x] 2.6 **批次 2 验证门禁**：
   - 适用场景：GitHub Actions CI 构建与真机/模拟器 UI 场景验证。
   - 预期结果：进入“工具”页面出现“自定义图标”选项卡，进入可正常选择 zip 导入，错误规格弹出提示，正确规格刷新预览，点击磁贴可平滑切换开/关仿真状态。
   - 最低证据：CI APK 构建成功，真机截图或操作日志验证 UI 与交互正常。
