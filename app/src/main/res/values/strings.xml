@@ -728,9 +728,13 @@
     <string name="custom_icon">Custom Icon</string>
     <string name="custom_icon_import">Import Icon Pack</string>
     <string name="custom_icon_reset">Reset to Default</string>
-    <string name="custom_icon_preview_app">Application Icon</string>
+    <string name="custom_icon_preview_shortcut">Shortcut Icon</string>
+    <string name="custom_icon_shortcut_subtitle">Android does not support modifying the software icon. Please fork and modify if needed!</string>
     <string name="custom_icon_preview_tile">Quick Settings Tile</string>
-    <string name="custom_icon_apply_and_restart">Apply and Restart</string>
+    <string name="custom_icon_apply_pack">Apply This Icon Pack</string>
+    <string name="custom_icon_apply_success">Icon pack applied. Desktop shortcut requested.</string>
+    <string name="custom_icon_pin_shortcut_not_supported">Your launcher does not support pinning shortcuts.</string>
+    <string name="custom_icon_no_pack_to_apply">Please import an icon pack first.</string>
     <string name="custom_icon_tile_state_active">Active (Tap to toggle)</string>
     <string name="custom_icon_tile_state_inactive">Inactive (Tap to toggle)</string>
     <string name="custom_icon_import_success">Icon pack imported successfully</string>

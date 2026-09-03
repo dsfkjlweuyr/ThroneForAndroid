@@ -82,18 +82,29 @@ STRINGS_ZH = ZH_XML_PATH.read_text(encoding="utf-8")
 assert 'name="custom_icon"' in STRINGS_EN
 assert 'name="custom_icon"' in STRINGS_ZH
 assert ">自定义图标</string>" in STRINGS_ZH
-assert 'name="custom_icon_apply_and_restart"' in STRINGS_EN
-assert 'name="custom_icon_apply_and_restart"' in STRINGS_ZH
+assert 'name="custom_icon_preview_shortcut"' in STRINGS_ZH
+assert ">快捷方式图标</string>" in STRINGS_ZH
+assert "Android平台不支持修改软件图标，若有需要请自行fork后修改！" in STRINGS_ZH
+assert 'name="custom_icon_apply_pack"' in STRINGS_ZH
+assert ">应用此图标包</string>" in STRINGS_ZH
 
-# 检查批次 3 TileService 与重启按钮契约
+# 检查批次 3 TileService 与应用图标包契约
 TILE_SERVICE_FILE = ROOT / "app" / "src" / "main" / "java" / "io" / "nekohasekai" / "sagernet" / "bg" / "TileService.kt"
 tile_code = TILE_SERVICE_FILE.read_text(encoding="utf-8")
+assert "CustomIconManager.isTileApplied" in tile_code
 assert "CustomIconManager.loadTileAlphaBitmap" in tile_code
 assert "Icon.createWithBitmap" in tile_code
 
-assert "btn_apply_and_restart" in layout_content
-assert "btnApplyAndRestart" in fragment_content
-assert "triggerFullRestart" in fragment_content
+LAYOUT_FILE = ROOT / "app" / "src" / "main" / "res" / "layout" / "layout_custom_icon.xml"
+layout_content = LAYOUT_FILE.read_text(encoding="utf-8")
+FRAGMENT_FILE = ROOT / "app" / "src" / "main" / "java" / "io" / "nekohasekai" / "sagernet" / "ui" / "CustomIconFragment.kt"
+fragment_content = FRAGMENT_FILE.read_text(encoding="utf-8")
+
+assert "btn_apply_pack" in layout_content
+assert "btnApplyPack" in fragment_content
+assert "applyIconPack" in fragment_content
+assert "ShortcutManagerCompat.requestPinShortcut" in fragment_content
+assert "CustomIconManager.setTileApplied(context, true)" in fragment_content
 assert "notifyTileUpdate" in fragment_content
 
 print("xml-syntax-valid=true")

@@ -16,7 +16,9 @@ class TileService : BaseTileService(), SagerConnection.Callback {
     private var tapPending = false
 
     private fun getTileIcon(): Icon {
-        val customTileBitmap = CustomIconManager.loadTileAlphaBitmap(this)
+        val customTileBitmap = if (CustomIconManager.isTileApplied(this)) {
+            CustomIconManager.loadTileAlphaBitmap(this)
+        } else null
         return if (customTileBitmap != null) {
             Icon.createWithBitmap(customTileBitmap)
         } else {

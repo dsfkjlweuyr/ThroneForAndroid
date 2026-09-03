@@ -1,6 +1,7 @@
 package io.nekohasekai.sagernet.ui
 
 import android.content.ComponentName
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Color
@@ -8,6 +9,9 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.pm.IconCompat
+import androidx.core.content.pm.ShortcutInfoCompat
+import androidx.core.content.pm.ShortcutManagerCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.nekohasekai.sagernet.R
 import io.nekohasekai.sagernet.bg.TileService
@@ -17,7 +21,6 @@ import io.nekohasekai.sagernet.ktx.getColorAttr
 import io.nekohasekai.sagernet.ktx.onMainDispatcher
 import io.nekohasekai.sagernet.ktx.runOnDefaultDispatcher
 import io.nekohasekai.sagernet.ktx.snackbar
-import io.nekohasekai.sagernet.ktx.triggerFullRestart
 import io.nekohasekai.sagernet.utils.CustomIconManager
 import android.service.quicksettings.TileService as BaseTileService
 
@@ -44,7 +47,6 @@ class CustomIconFragment : NamedFragment(R.layout.layout_custom_icon) {
                         is CustomIconManager.ImportResult.Success -> {
                             snackbar(getString(R.string.custom_icon_import_success)).show()
                             refreshPreview()
-                            notifyTileUpdate()
                         }
                         is CustomIconManager.ImportResult.MissingFile -> {
                             snackbar(getString(R.string.custom_icon_error_missing, result.fileName)).show()
@@ -97,8 +99,8 @@ class CustomIconFragment : NamedFragment(R.layout.layout_custom_icon) {
                 .show()
         }
 
-        binding.btnApplyAndRestart.setOnClickListener {
-            triggerFullRestart(requireContext())
+        binding.btnApplyPack.setOnClickListener {
+            applyIconPack()
         }
 
         binding.cardSimulatedTile.setOnClickListener {
@@ -107,6 +109,41 @@ class CustomIconFragment : NamedFragment(R.layout.layout_custom_icon) {
         }
 
         refreshPreview()
+    }
+
+    private fun applyIconPack() {
+        val context = requireContext()
+        if (!CustomIconManager.hasCustomIcon(context) || !CustomIconManager.hasCustomTile(context)) {
+            snackbar(getString(R.string.custom_icon_no_pack_to_apply)).show()
+            return
+        }
+
+        // 1. 生效 tile.png，通知系统快捷设置磁贴更新
+        CustomIconManager.setTileApplied(context, true)
+        notifyTileUpdate()
+
+        // 2. 用自定义 icon.png 创建桌面入口快捷方式（无需重启）
+        val iconBitmap = CustomIconManager.loadIconBitmap(context)
+        if (iconBitmap != null) {
+            if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
+                val shortcutIntent = Intent(context, MainActivity::class.java).apply {
+                    action = Intent.ACTION_MAIN
+                }
+                val shortcut = ShortcutInfoCompat.Builder(context, "custom_icon_shortcut")
+                    .setShortLabel(getString(R.string.app_name))
+                    .setLongLabel(getString(R.string.app_name))
+                    .setIcon(IconCompat.createWithBitmap(iconBitmap))
+                    .setIntent(shortcutIntent)
+                    .build()
+
+                ShortcutManagerCompat.requestPinShortcut(context, shortcut, null)
+                snackbar(getString(R.string.custom_icon_apply_success)).show()
+            } else {
+                snackbar(getString(R.string.custom_icon_pin_shortcut_not_supported)).show()
+            }
+        } else {
+            snackbar(getString(R.string.custom_icon_apply_success)).show()
+        }
     }
 
     private fun notifyTileUpdate() {

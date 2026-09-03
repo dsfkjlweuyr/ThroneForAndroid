@@ -645,9 +645,13 @@
     <string name="custom_icon">自定义图标</string>
     <string name="custom_icon_import">导入图标包</string>
     <string name="custom_icon_reset">恢复默认</string>
-    <string name="custom_icon_preview_app">应用图标</string>
+    <string name="custom_icon_preview_shortcut">快捷方式图标</string>
+    <string name="custom_icon_shortcut_subtitle">Android平台不支持修改软件图标，若有需要请自行fork后修改！</string>
     <string name="custom_icon_preview_tile">快捷设置磁贴</string>
-    <string name="custom_icon_apply_and_restart">应用并重启</string>
+    <string name="custom_icon_apply_pack">应用此图标包</string>
+    <string name="custom_icon_apply_success">已应用图标包并请求创建桌面快捷方式。</string>
+    <string name="custom_icon_pin_shortcut_not_supported">当前桌面启动器不支持创建桌面快捷方式。</string>
+    <string name="custom_icon_no_pack_to_apply">请先导入图标包。</string>
     <string name="custom_icon_tile_state_active">开启状态（点击切换）</string>
     <string name="custom_icon_tile_state_inactive">关闭状态（点击切换）</string>
     <string name="custom_icon_import_success">图标包导入成功</string>

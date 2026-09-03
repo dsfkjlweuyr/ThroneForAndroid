@@ -36,16 +36,37 @@ object CustomIconManager {
 
     fun getIconFile(context: Context = app): File = getIconDir(context).resolve(FILE_ICON)
     fun getTileFile(context: Context = app): File = getIconDir(context).resolve(FILE_TILE)
+    private fun getAppliedFile(context: Context = app): File = getIconDir(context).resolve("tile_applied")
 
     fun hasCustomIcon(context: Context = app): Boolean = getIconFile(context).exists()
     fun hasCustomTile(context: Context = app): Boolean = getTileFile(context).exists()
     fun isCustomActive(context: Context = app): Boolean = hasCustomIcon(context) && hasCustomTile(context)
+
+    fun isTileApplied(context: Context = app): Boolean = getAppliedFile(context).exists() && hasCustomTile(context)
+
+    fun setTileApplied(context: Context = app, applied: Boolean) {
+        val marker = getAppliedFile(context)
+        if (applied) {
+            if (!marker.exists()) {
+                try {
+                    marker.createNewFile()
+                } catch (e: Throwable) {
+                    // ignore
+                }
+            }
+        } else {
+            if (marker.exists()) {
+                marker.delete()
+            }
+        }
+    }
 
     /**
      * 重置恢复默认图标
      */
     fun reset(context: Context = app): Boolean {
         var success = true
+        setTileApplied(context, false)
         val iconFile = getIconFile(context)
         if (iconFile.exists() && !iconFile.delete()) success = false
         val tileFile = getTileFile(context)
@@ -114,6 +135,9 @@ object CustomIconManager {
 
             tempIcon.copyTo(targetIcon, overwrite = true)
             tempTile.copyTo(targetTile, overwrite = true)
+
+            // 导入后仅在本地预览，不自动生效 tile，等待用户显式应用
+            setTileApplied(context, false)
 
             return ImportResult.Success
         } catch (e: Exception) {
