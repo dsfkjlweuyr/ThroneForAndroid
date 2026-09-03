@@ -8,8 +8,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-
-	"github.com/sagernet/sing-box/option"
 )
 
 type XmuxConn interface {

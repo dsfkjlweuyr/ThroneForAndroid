@@ -23,7 +23,7 @@ def extract_package(content):
     m = re.search(r'^\s*package\s+([a-zA-Z0-9_]+)', content, re.MULTILINE)
     return m.group(1) if m else None
 
-def extract_imports(filepath):
+def extract_imports_and_code(filepath):
     with open(filepath, "r", encoding="utf-8") as f:
         content = f.read()
 
@@ -42,7 +42,26 @@ def extract_imports(filepath):
     for alias, pkg in single_matches:
         imports.append((alias, pkg))
 
-    return imports, extract_package(content)
+    # Remove import blocks and comments from code to analyze usage
+    code_without_imports = re.sub(r'import\s*\((.*?)\)', '', content, flags=re.DOTALL)
+    code_without_imports = re.sub(r'import\s+(?:[a-zA-Z0-9_]+\s+)?"[^"]+"', '', code_without_imports)
+    code_without_comments = re.sub(r'//.*$', '', code_without_imports, flags=re.MULTILINE)
+    code_without_comments = re.sub(r'/\*.*?\*/', '', code_without_comments, flags=re.DOTALL)
+
+    return imports, extract_package(content), code_without_comments
+
+KNOWN_PACKAGE_NAMES = {
+    "libcore/protocol/vless/internal/xray": "common",
+    "github.com/sagernet/quic-go": "quic",
+    "golang.org/x/net/http2": "http2",
+}
+
+def get_effective_identifier(alias, pkg):
+    if alias and alias != "_":
+        return alias
+    if pkg in KNOWN_PACKAGE_NAMES:
+        return KNOWN_PACKAGE_NAMES[pkg]
+    return pkg.split("/")[-1]
 
 def main():
     print("=== Auditing libcore/protocol/vless Go packages ===")
@@ -59,7 +78,7 @@ def main():
 
     for gf in go_files:
         rel_path = os.path.relpath(gf, REPO_ROOT)
-        imports, pkg_name = extract_imports(gf)
+        imports, pkg_name, code = extract_imports_and_code(gf)
         if not pkg_name:
             errors.append(f"[{rel_path}] Missing package declaration")
 
@@ -81,6 +100,12 @@ def main():
                 if not os.path.isdir(expected_dir):
                     errors.append(f"[{rel_path}] Unresolved internal import: {pkg} -> {expected_dir} not found")
 
+            if alias == "_":
+                continue
+            ident = get_effective_identifier(alias, pkg)
+            if not re.search(r'\b' + re.escape(ident) + r'\b', code):
+                errors.append(f"[{rel_path}] Unused import: '{pkg}' (identifier '{ident}')")
+
     print(f"Validated {len(packages_by_dir)} distinct Go package directories.")
     for d, (p, f) in sorted(packages_by_dir.items()):
         rel_d = os.path.relpath(d, REPO_ROOT)
@@ -92,7 +117,7 @@ def main():
             print("  ERROR:", e)
         sys.exit(1)
     else:
-        print("\nSUCCESS: All package declarations, internal imports and namespace boundaries are valid!")
+        print("\nSUCCESS: All package declarations, internal imports, and symbol usages are valid!")
 
 if __name__ == "__main__":
     main()

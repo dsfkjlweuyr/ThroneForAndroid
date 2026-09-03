@@ -12,7 +12,6 @@ import (
 
 	"libcore/protocol/vless/internal/xray"
 	"libcore/protocol/vless/internal/xray/signal/done"
-	"github.com/sagernet/sing-box/option"
 )
 
 // interface to abstract between use of browser dialer, vs net/http

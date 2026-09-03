@@ -23,7 +23,7 @@ import (
 	"libcore/protocol/vless/internal/xray/pipe"
 	"libcore/protocol/vless/internal/xray/signal/done"
 	"libcore/protocol/vless/internal/xray/uuid"
-	"github.com/sagernet/sing-box/option"
+	"github.com/sagernet/sing-box/log"
 	qtls "github.com/sagernet/sing-quic"
 	"github.com/sagernet/sing/common"
 	"github.com/sagernet/sing/common/bufio"
