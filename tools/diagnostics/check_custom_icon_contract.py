@@ -103,6 +103,7 @@ fragment_content = FRAGMENT_FILE.read_text(encoding="utf-8")
 assert "btn_apply_pack" in layout_content
 assert "btnApplyPack" in fragment_content
 assert "applyIconPack" in fragment_content
+assert "import androidx.core.graphics.drawable.IconCompat" in fragment_content
 assert "ShortcutManagerCompat.requestPinShortcut" in fragment_content
 assert "CustomIconManager.setTileApplied(context, true)" in fragment_content
 assert "notifyTileUpdate" in fragment_content
