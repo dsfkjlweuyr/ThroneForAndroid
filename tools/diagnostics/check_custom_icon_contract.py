@@ -47,7 +47,35 @@ assert w == 512 and h == 512
 header_corrupted = b"NOT_A_PNG_FILE"
 assert not header_corrupted.startswith(b"\x89PNG\r\n\x1a\n")
 
+# 检查批次 2 UI 与布局契约
+LAYOUT_FILE = ROOT / "app" / "src" / "main" / "res" / "layout" / "layout_custom_icon.xml"
+assert LAYOUT_FILE.is_file(), f"Missing layout file: {LAYOUT_FILE}"
+layout_content = LAYOUT_FILE.read_text(encoding="utf-8")
+assert "btn_import_pack" in layout_content
+assert "btn_reset_default" in layout_content
+assert "iv_app_icon_preview" in layout_content
+assert "card_simulated_tile" in layout_content
+assert "iv_simulated_tile_icon" in layout_content
+
+FRAGMENT_FILE = ROOT / "app" / "src" / "main" / "java" / "io" / "nekohasekai" / "sagernet" / "ui" / "CustomIconFragment.kt"
+assert FRAGMENT_FILE.is_file(), f"Missing fragment file: {FRAGMENT_FILE}"
+fragment_content = FRAGMENT_FILE.read_text(encoding="utf-8")
+assert "class CustomIconFragment : NamedFragment" in fragment_content
+assert "updateSimulatedTileUi" in fragment_content
+assert "refreshPreview" in fragment_content
+
+TOOLS_FILE = ROOT / "app" / "src" / "main" / "java" / "io" / "nekohasekai" / "sagernet" / "ui" / "ToolsFragment.kt"
+tools_content = TOOLS_FILE.read_text(encoding="utf-8")
+assert "tools.add(CustomIconFragment())" in tools_content
+
+STRINGS_EN = (ROOT / "app" / "src" / "main" / "res" / "values" / "strings.xml").read_text(encoding="utf-8")
+STRINGS_ZH = (ROOT / "app" / "src" / "main" / "res" / "values-zh-rCN" / "strings.xml").read_text(encoding="utf-8")
+assert 'name="custom_icon"' in STRINGS_EN
+assert 'name="custom_icon"' in STRINGS_ZH
+assert ">自定义图标</string>" in STRINGS_ZH
+
 print("custom-icon-manager-contract=true")
 print("png-header-algorithm-verified=true")
 print("path-traversal-protection-verified=true")
 print("unit-test-contract-verified=true")
+print("batch-2-ui-contract-verified=true")

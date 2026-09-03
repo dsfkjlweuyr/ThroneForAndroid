@@ -640,4 +640,21 @@
     <string name="speed_test_download_format">下载：%1$s（%2$s）</string>
     <string name="speed_test_upload_format">上传：%1$s（%2$s）</string>
     <string name="speed_test_rate_mbps">%1$.2f Mbps</string>
+
+    <!-- Custom Icon Pack -->
+    <string name="custom_icon">自定义图标</string>
+    <string name="custom_icon_import">导入图标包</string>
+    <string name="custom_icon_reset">恢复默认</string>
+    <string name="custom_icon_preview_app">应用图标</string>
+    <string name="custom_icon_preview_tile">快捷设置磁贴（仿真预览）</string>
+    <string name="custom_icon_tile_state_active">开启状态（点击切换）</string>
+    <string name="custom_icon_tile_state_inactive">关闭状态（点击切换）</string>
+    <string name="custom_icon_import_success">图标包导入成功</string>
+    <string name="custom_icon_reset_success">已恢复默认图标</string>
+    <string name="custom_icon_reset_confirm">确定要恢复默认图标吗？</string>
+    <string name="custom_icon_error_missing">图标包缺少必要文件：%s</string>
+    <string name="custom_icon_error_dimension">%1$s 分辨率必须为 512x512 像素（当前为：%2$dx%3$d）</string>
+    <string name="custom_icon_error_not_png">%s 不是有效的 PNG 图片文件</string>
+    <string name="custom_icon_error_security">安全校验失败：%s</string>
+    <string name="custom_icon_requirement_tip">图标包须为 ZIP 压缩包，内含 512x512 的 icon.png 与 tile.png。</string>
 </resources>
