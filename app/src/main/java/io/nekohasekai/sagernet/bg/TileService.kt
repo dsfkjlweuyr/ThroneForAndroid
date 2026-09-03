@@ -7,16 +7,22 @@ import io.nekohasekai.sagernet.R
 import io.nekohasekai.sagernet.SagerNet
 import io.nekohasekai.sagernet.aidl.ISagerNetService
 import io.nekohasekai.sagernet.database.SagerDatabase
+import io.nekohasekai.sagernet.utils.CustomIconManager
 import android.service.quicksettings.TileService as BaseTileService
 
 @RequiresApi(24)
 class TileService : BaseTileService(), SagerConnection.Callback {
-    private val iconIdle by lazy { Icon.createWithResource(this, R.drawable.ic_throne_tile) }
-    private val iconBusy by lazy { Icon.createWithResource(this, R.drawable.ic_throne_tile) }
-    private val iconConnected by lazy {
-        Icon.createWithResource(this, R.drawable.ic_throne_tile)
-    }
+    private val defaultIcon by lazy { Icon.createWithResource(this, R.drawable.ic_throne_tile) }
     private var tapPending = false
+
+    private fun getTileIcon(): Icon {
+        val customTileBitmap = CustomIconManager.loadTileAlphaBitmap(this)
+        return if (customTileBitmap != null) {
+            Icon.createWithBitmap(customTileBitmap)
+        } else {
+            defaultIcon
+        }
+    }
 
     private val connection = SagerConnection(SagerConnection.CONNECTION_ID_TILE)
     override fun stateChanged(state: BaseService.State, profileName: String?, msg: String?) =
@@ -52,26 +58,27 @@ class TileService : BaseTileService(), SagerConnection.Callback {
     private fun updateTile(serviceState: BaseService.State, profileName: String?) {
         qsTile?.apply {
             label = null
+            val currentIcon = getTileIcon()
             when (serviceState) {
                 BaseService.State.Idle -> error("serviceState")
                 BaseService.State.Connecting -> {
-                    icon = iconBusy
+                    icon = currentIcon
                     state = Tile.STATE_ACTIVE
                 }
 
                 BaseService.State.Connected -> {
-                    icon = iconConnected
+                    icon = currentIcon
                     label = profileName
                     state = Tile.STATE_ACTIVE
                 }
 
                 BaseService.State.Stopping -> {
-                    icon = iconBusy
+                    icon = currentIcon
                     state = Tile.STATE_UNAVAILABLE
                 }
 
                 BaseService.State.Stopped -> {
-                    icon = iconIdle
+                    icon = currentIcon
                     state = Tile.STATE_INACTIVE
                 }
             }

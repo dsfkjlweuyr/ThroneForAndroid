@@ -82,6 +82,19 @@ STRINGS_ZH = ZH_XML_PATH.read_text(encoding="utf-8")
 assert 'name="custom_icon"' in STRINGS_EN
 assert 'name="custom_icon"' in STRINGS_ZH
 assert ">自定义图标</string>" in STRINGS_ZH
+assert 'name="custom_icon_apply_and_restart"' in STRINGS_EN
+assert 'name="custom_icon_apply_and_restart"' in STRINGS_ZH
+
+# 检查批次 3 TileService 与重启按钮契约
+TILE_SERVICE_FILE = ROOT / "app" / "src" / "main" / "java" / "io" / "nekohasekai" / "sagernet" / "bg" / "TileService.kt"
+tile_code = TILE_SERVICE_FILE.read_text(encoding="utf-8")
+assert "CustomIconManager.loadTileAlphaBitmap" in tile_code
+assert "Icon.createWithBitmap" in tile_code
+
+assert "btn_apply_and_restart" in layout_content
+assert "btnApplyAndRestart" in fragment_content
+assert "triggerFullRestart" in fragment_content
+assert "notifyTileUpdate" in fragment_content
 
 print("xml-syntax-valid=true")
 print("custom-icon-manager-contract=true")
@@ -89,3 +102,4 @@ print("png-header-algorithm-verified=true")
 print("path-traversal-protection-verified=true")
 print("unit-test-contract-verified=true")
 print("batch-2-ui-contract-verified=true")
+print("batch-3-tileservice-contract-verified=true")

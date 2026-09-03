@@ -646,7 +646,8 @@
     <string name="custom_icon_import">导入图标包</string>
     <string name="custom_icon_reset">恢复默认</string>
     <string name="custom_icon_preview_app">应用图标</string>
-    <string name="custom_icon_preview_tile">快捷设置磁贴（仿真预览）</string>
+    <string name="custom_icon_preview_tile">快捷设置磁贴</string>
+    <string name="custom_icon_apply_and_restart">应用并重启</string>
     <string name="custom_icon_tile_state_active">开启状态（点击切换）</string>
     <string name="custom_icon_tile_state_inactive">关闭状态（点击切换）</string>
     <string name="custom_icon_import_success">图标包导入成功</string>

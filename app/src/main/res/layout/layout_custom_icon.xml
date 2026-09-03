@@ -109,7 +109,7 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- 快捷设置磁贴（仿真预览）卡片 -->
+        <!-- 快捷设置磁贴预览卡片 -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -187,6 +187,18 @@
             </LinearLayout>
 
         </com.google.android.material.card.MaterialCardView>
+
+        <!-- 应用并重启按钮 -->
+        <Button
+            android:id="@+id/btn_apply_and_restart"
+            style="@style/Widget.SagerNet.Button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginVertical="12dp"
+            android:text="@string/custom_icon_apply_and_restart"
+            android:textColor="?whiteOrTextPrimary"
+            app:cornerRadius="24dp" />
 
     </LinearLayout>
 

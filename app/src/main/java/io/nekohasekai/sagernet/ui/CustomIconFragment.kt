@@ -1,20 +1,25 @@
 package io.nekohasekai.sagernet.ui
 
+import android.content.ComponentName
 import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.nekohasekai.sagernet.R
+import io.nekohasekai.sagernet.bg.TileService
 import io.nekohasekai.sagernet.databinding.LayoutCustomIconBinding
 import io.nekohasekai.sagernet.ktx.app
 import io.nekohasekai.sagernet.ktx.getColorAttr
 import io.nekohasekai.sagernet.ktx.onMainDispatcher
 import io.nekohasekai.sagernet.ktx.runOnDefaultDispatcher
 import io.nekohasekai.sagernet.ktx.snackbar
+import io.nekohasekai.sagernet.ktx.triggerFullRestart
 import io.nekohasekai.sagernet.utils.CustomIconManager
+import android.service.quicksettings.TileService as BaseTileService
 
 class CustomIconFragment : NamedFragment(R.layout.layout_custom_icon) {
 
@@ -39,6 +44,7 @@ class CustomIconFragment : NamedFragment(R.layout.layout_custom_icon) {
                         is CustomIconManager.ImportResult.Success -> {
                             snackbar(getString(R.string.custom_icon_import_success)).show()
                             refreshPreview()
+                            notifyTileUpdate()
                         }
                         is CustomIconManager.ImportResult.MissingFile -> {
                             snackbar(getString(R.string.custom_icon_error_missing, result.fileName)).show()
@@ -85,9 +91,14 @@ class CustomIconFragment : NamedFragment(R.layout.layout_custom_icon) {
                     CustomIconManager.reset(requireContext())
                     snackbar(getString(R.string.custom_icon_reset_success)).show()
                     refreshPreview()
+                    notifyTileUpdate()
                 }
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
+        }
+
+        binding.btnApplyAndRestart.setOnClickListener {
+            triggerFullRestart(requireContext())
         }
 
         binding.cardSimulatedTile.setOnClickListener {
@@ -96,6 +107,19 @@ class CustomIconFragment : NamedFragment(R.layout.layout_custom_icon) {
         }
 
         refreshPreview()
+    }
+
+    private fun notifyTileUpdate() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            try {
+                BaseTileService.requestListeningState(
+                    requireContext(),
+                    ComponentName(requireContext(), TileService::class.java)
+                )
+            } catch (e: Throwable) {
+                // ignore
+            }
+        }
     }
 
     private fun refreshPreview() {
