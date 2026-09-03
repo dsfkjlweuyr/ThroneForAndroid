@@ -1,15 +1,16 @@
 package io.nekohasekai.sagernet.ui
 
 import android.content.res.ColorStateList
+import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
-import android.util.TypedValue
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.nekohasekai.sagernet.R
 import io.nekohasekai.sagernet.databinding.LayoutCustomIconBinding
 import io.nekohasekai.sagernet.ktx.app
+import io.nekohasekai.sagernet.ktx.getColorAttr
 import io.nekohasekai.sagernet.ktx.onMainDispatcher
 import io.nekohasekai.sagernet.ktx.runOnDefaultDispatcher
 import io.nekohasekai.sagernet.ktx.snackbar
@@ -122,23 +123,13 @@ class CustomIconFragment : NamedFragment(R.layout.layout_custom_icon) {
 
     private fun updateSimulatedTileUi(active: Boolean) {
         val context = context ?: return
-        val theme = context.theme
+        val isNight = (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
 
-        val tvColorPrimary = TypedValue()
-        theme.resolveAttribute(androidx.appcompat.R.attr.colorPrimary, tvColorPrimary, true)
-        val primaryColor = tvColorPrimary.data
-
-        val tvTextColorSecondary = TypedValue()
-        theme.resolveAttribute(android.R.attr.textColorSecondary, tvTextColorSecondary, true)
-        val secondaryTextColor = tvTextColorSecondary.data
-
-        val tvColorSurface = TypedValue()
-        theme.resolveAttribute(com.google.android.material.R.attr.colorSurface, tvColorSurface, true)
-        val surfaceColor = tvColorSurface.data
-
-        val tvTextColorPrimary = TypedValue()
-        theme.resolveAttribute(android.R.attr.textColorPrimary, tvTextColorPrimary, true)
-        val primaryTextColor = tvTextColorPrimary.data
+        val primaryColor = try {
+            context.getColorAttr(androidx.appcompat.R.attr.colorPrimary)
+        } catch (e: Throwable) {
+            Color.parseColor("#1976D2")
+        }
 
         if (active) {
             binding.cardSimulatedTile.setCardBackgroundColor(primaryColor)
@@ -147,11 +138,16 @@ class CustomIconFragment : NamedFragment(R.layout.layout_custom_icon) {
             binding.tvSimulatedTileState.setText(R.string.custom_icon_tile_state_active)
             binding.ivSimulatedTileIcon.imageTintList = ColorStateList.valueOf(Color.WHITE)
         } else {
-            binding.cardSimulatedTile.setCardBackgroundColor(surfaceColor)
-            binding.tvSimulatedTileName.setTextColor(primaryTextColor)
-            binding.tvSimulatedTileState.setTextColor(secondaryTextColor)
+            // Inactive 状态：仿 Android 真实 QS Tile 关闭状态
+            val inactiveBgColor = if (isNight) Color.parseColor("#2D3038") else Color.parseColor("#E2E2E6")
+            val titleTextColor = if (isNight) Color.parseColor("#E3E2E6") else Color.parseColor("#1A1C1E")
+            val subtitleTextColor = if (isNight) Color.parseColor("#C4C6D0") else Color.parseColor("#44474E")
+
+            binding.cardSimulatedTile.setCardBackgroundColor(inactiveBgColor)
+            binding.tvSimulatedTileName.setTextColor(titleTextColor)
+            binding.tvSimulatedTileState.setTextColor(subtitleTextColor)
             binding.tvSimulatedTileState.setText(R.string.custom_icon_tile_state_inactive)
-            binding.ivSimulatedTileIcon.imageTintList = ColorStateList.valueOf(secondaryTextColor)
+            binding.ivSimulatedTileIcon.imageTintList = ColorStateList.valueOf(titleTextColor)
         }
     }
 }

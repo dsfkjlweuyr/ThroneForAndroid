@@ -2,22 +2,18 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp">
+        android:orientation="vertical">
 
         <!-- 规格说明与操作卡片 -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp">
+            android:layout_margin="8dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -78,34 +74,36 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp">
+            android:layout_margin="8dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="16dp">
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/custom_icon_preview_app"
-                    android:textAppearance="?attr/textAppearanceSubtitle1"
-                    android:textStyle="bold" />
+                    android:textAppearance="?attr/textAppearanceHeadline6" />
 
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/iv_app_icon_preview"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="8dp"
-                    android:contentDescription="@string/custom_icon_preview_app"
-                    android:scaleType="fitCenter"
-                    android:src="@mipmap/ic_launcher"
-                    app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.MediumComponent" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingVertical="12dp">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/iv_app_icon_preview"
+                        android:layout_width="96dp"
+                        android:layout_height="96dp"
+                        android:contentDescription="@string/custom_icon_preview_app"
+                        android:scaleType="fitCenter"
+                        android:src="@mipmap/ic_launcher"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.MediumComponent" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -115,30 +113,19 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp">
+            android:layout_margin="8dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="20dp">
+                android:padding="16dp">
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/custom_icon_preview_tile"
-                    android:textAppearance="?attr/textAppearanceSubtitle1"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="@string/custom_icon_tile_state_inactive"
-                    android:textAppearance="?attr/textAppearanceCaption"
-                    android:textColor="?android:attr/textColorSecondary" />
+                    android:textAppearance="?attr/textAppearanceHeadline6" />
 
                 <!-- 模拟系统 Quick Settings Tile 的胶囊卡片 -->
                 <com.google.android.material.card.MaterialCardView
@@ -148,10 +135,9 @@
                     android:layout_marginTop="16dp"
                     android:clickable="true"
                     android:focusable="true"
-                    app:cardCornerRadius="20dp"
+                    app:cardCornerRadius="24dp"
                     app:cardElevation="0dp"
-                    app:strokeColor="?attr/colorControlHighlight"
-                    app:strokeWidth="1dp">
+                    app:strokeWidth="0dp">
 
                     <LinearLayout
                         android:id="@+id/layout_simulated_tile_content"
@@ -159,12 +145,12 @@
                         android:layout_height="match_parent"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingHorizontal="16dp">
+                        android:paddingHorizontal="20dp">
 
                         <ImageView
                             android:id="@+id/iv_simulated_tile_icon"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
                             android:contentDescription="@string/custom_icon_preview_tile"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_throne_tile" />
@@ -181,15 +167,16 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/app_name"
-                                android:textAppearance="?attr/textAppearanceSubtitle2"
+                                android:textAppearance="?attr/textAppearanceSubtitle1"
                                 android:textStyle="bold" />
 
                             <TextView
                                 android:id="@+id/tv_simulated_tile_state"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
                                 android:text="@string/custom_icon_tile_state_inactive"
-                                android:textAppearance="?attr/textAppearanceCaption" />
+                                android:textAppearance="?attr/textAppearanceBody2" />
 
                         </LinearLayout>
 
