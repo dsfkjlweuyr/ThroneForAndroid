@@ -3,7 +3,7 @@
 - [x] 1.1 从 `sing-box-throne` (`origin/xhttp`) 移植精简版 Xray buffer 工具集至 `libcore/protocol/vless/internal/`（包含 `xray/buf`, `xray/pipe`, `xray/bytespool`, `xray/signal`）
 - [x] 1.2 移植 XHTTP 核心传输驱动至 `libcore/protocol/vless/xhttp`（包含 `client.go`, `conn.go`, `dialer.go`, `http.go`, `mux.go`, `upload_queue.go`, `writer.go`），并定义 `XHTTPOptions`
 - [x] 1.3 编写静态依赖与符号审计脚本 `tools/diagnostics/audit_xhttp_libcore.py`，使用 `uv run` 执行，验证依赖与官方 sing-box v1.13.16 纯净兼容
-- [ ] 1.4 批次一验证门禁（CI 构建）：提交变更并触发 GitHub Actions CI 构建（`.github/workflows/ci.yml`），验证 libcore Go 模块编译与 AAR 打包无符号错误、无未导出的依赖错误
+- [x] 1.4 批次一验证门禁（CI 构建）：提交变更并触发 GitHub Actions CI 构建（`.github/workflows/ci.yml`），验证 libcore Go 模块编译与 AAR 打包无符号错误、无未导出的依赖错误
 
 ## 2. 实现并注册扩展版 VLESS Outbound (libcore)
 
