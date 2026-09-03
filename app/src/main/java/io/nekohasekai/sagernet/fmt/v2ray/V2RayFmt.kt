@@ -17,6 +17,14 @@ private val supportedKcpHeaderType = arrayOf(
     "none", "srtp", "utp", "wechat-video", "dtls", "wireguard", "dns"
 )
 
+fun normalizeXhttpMode(mode: String?): String {
+    val normalized = mode?.trim()
+    return when (normalized) {
+        "packet-up", "stream-up", "stream-one" -> normalized
+        else -> "auto"
+    }
+}
+
 data class VmessQRCode(
     var v: String = "",
     var ps: String = "",
@@ -54,10 +62,12 @@ fun parseV2Ray(link: String): StandardV2RayBean {
         }
     }
 
-    try {
-        return tryResolveVmess4Kitsunebi(link)
-    } catch (e: Exception) {
-        Logs.i("try Kitsunebi: " + e.readableMessage)
+    if (link.startsWith("vmess://")) {
+        try {
+            return tryResolveVmess4Kitsunebi(link)
+        } catch (e: Exception) {
+            Logs.i("try Kitsunebi: " + e.readableMessage)
+        }
     }
 
     // "std" format
@@ -139,7 +149,7 @@ fun parseV2Ray(link: String): StandardV2RayBean {
                     bean.path = it
                 }
                 url.queryParameter("mode")?.let {
-                    bean.xhttpMode = it
+                    bean.xhttpMode = normalizeXhttpMode(it)
                 }
                 url.queryParameter("extra")?.let {
                     bean.xhttpExtra = XhttpExtraConverter.xrayToSingBox(it)
@@ -287,7 +297,7 @@ fun StandardV2RayBean.parseDuckSoft(url: HttpUrl) {
                 path = it
             }
             url.queryParameter("mode")?.let {
-                xhttpMode = it
+                xhttpMode = normalizeXhttpMode(it)
             }
             url.queryParameter("extra")?.let {
                 xhttpExtra = XhttpExtraConverter.xrayToSingBox(it)
@@ -726,7 +736,7 @@ fun buildSingBoxOutboundStreamSettings(bean: StandardV2RayBean): V2RayTransportO
         "xhttp" -> {
             val baseConfig = V2RayTransportOptions_XHTTPOptions().apply {
                 type = "xhttp"
-                mode = bean.xhttpMode.takeIf { it.isNotBlank() } ?: "auto"
+                mode = normalizeXhttpMode(bean.xhttpMode)
                 host = bean.host.takeIf { it.isNotBlank() }
                 path = bean.path.takeIf { it.isNotBlank() } ?: "/"
             }
@@ -746,8 +756,11 @@ fun buildSingBoxOutboundStreamSettings(bean: StandardV2RayBean): V2RayTransportO
                         "headers",
                         "x_padding_bytes",
                         "no_grpc_header",
+                        "no_sse_header",
                         "sc_max_each_post_bytes",
                         "sc_min_posts_interval_ms",
+                        "sc_max_buffered_posts",
+                        "sc_stream_up_server_secs",
                         "x_padding_obfs_mode",
                         "x_padding_key",
                         "x_padding_header",

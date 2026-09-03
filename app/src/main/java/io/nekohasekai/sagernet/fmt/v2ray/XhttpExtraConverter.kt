@@ -14,7 +14,10 @@ object XhttpExtraConverter {
             convertField(xray, singBox, "xPaddingBytes", "x_padding_bytes")
             convertField(xray, singBox, "scMaxEachPostBytes", "sc_max_each_post_bytes")
             convertField(xray, singBox, "scMinPostsIntervalMs", "sc_min_posts_interval_ms")
+            convertField(xray, singBox, "scMaxBufferedPosts", "sc_max_buffered_posts")
+            convertField(xray, singBox, "scStreamUpServerSecs", "sc_stream_up_server_secs")
             convertField(xray, singBox, "noGRPCHeader", "no_grpc_header")
+            convertField(xray, singBox, "noSSEHeader", "no_sse_header")
             convertField(xray, singBox, "headers", "headers")
             convertField(xray, singBox, "xPaddingObfsMode", "x_padding_obfs_mode")
             convertField(xray, singBox, "xPaddingKey", "x_padding_key")
@@ -114,7 +117,10 @@ object XhttpExtraConverter {
                     convertField(extra, singBoxDown, "xPaddingBytes", "x_padding_bytes")
                     convertField(extra, singBoxDown, "scMaxEachPostBytes", "sc_max_each_post_bytes")
                     convertField(extra, singBoxDown, "scMinPostsIntervalMs", "sc_min_posts_interval_ms")
+                    convertField(extra, singBoxDown, "scMaxBufferedPosts", "sc_max_buffered_posts")
+                    convertField(extra, singBoxDown, "scStreamUpServerSecs", "sc_stream_up_server_secs")
                     convertField(extra, singBoxDown, "noGRPCHeader", "no_grpc_header")
+                    convertField(extra, singBoxDown, "noSSEHeader", "no_sse_header")
                     convertField(extra, singBoxDown, "xPaddingObfsMode", "x_padding_obfs_mode")
                     convertField(extra, singBoxDown, "xPaddingKey", "x_padding_key")
                     convertField(extra, singBoxDown, "xPaddingHeader", "x_padding_header")
@@ -150,7 +156,10 @@ object XhttpExtraConverter {
             convertField(singBox, xray, "x_padding_bytes", "xPaddingBytes")
             convertField(singBox, xray, "sc_max_each_post_bytes", "scMaxEachPostBytes")
             convertField(singBox, xray, "sc_min_posts_interval_ms", "scMinPostsIntervalMs")
+            convertField(singBox, xray, "sc_max_buffered_posts", "scMaxBufferedPosts")
+            convertField(singBox, xray, "sc_stream_up_server_secs", "scStreamUpServerSecs")
             convertField(singBox, xray, "no_grpc_header", "noGRPCHeader")
+            convertField(singBox, xray, "no_sse_header", "noSSEHeader")
             convertField(singBox, xray, "headers", "headers")
             convertField(singBox, xray, "x_padding_obfs_mode", "xPaddingObfsMode")
             convertField(singBox, xray, "x_padding_key", "xPaddingKey")
@@ -224,7 +233,10 @@ object XhttpExtraConverter {
                 convertField(singBoxDown, xhttpExtra, "x_padding_bytes", "xPaddingBytes")
                 convertField(singBoxDown, xhttpExtra, "sc_max_each_post_bytes", "scMaxEachPostBytes")
                 convertField(singBoxDown, xhttpExtra, "sc_min_posts_interval_ms", "scMinPostsIntervalMs")
+                convertField(singBoxDown, xhttpExtra, "sc_max_buffered_posts", "scMaxBufferedPosts")
+                convertField(singBoxDown, xhttpExtra, "sc_stream_up_server_secs", "scStreamUpServerSecs")
                 convertField(singBoxDown, xhttpExtra, "no_grpc_header", "noGRPCHeader")
+                convertField(singBoxDown, xhttpExtra, "no_sse_header", "noSSEHeader")
                 convertField(singBoxDown, xhttpExtra, "x_padding_obfs_mode", "xPaddingObfsMode")
                 convertField(singBoxDown, xhttpExtra, "x_padding_key", "xPaddingKey")
                 convertField(singBoxDown, xhttpExtra, "x_padding_header", "xPaddingHeader")
@@ -264,16 +276,57 @@ object XhttpExtraConverter {
         }
     }
 
+    fun clashToSingBox(xhttpOpts: Map<String, Any?>): String {
+        val singBox = JSONObject()
+        copyClashBaseOptions(xhttpOpts, singBox)
+        copyClashXmux(xhttpOpts["reuse-settings"], singBox)
+
+        (xhttpOpts["download-settings"] as? Map<*, *>)?.let { downloadSettings ->
+            val download = JSONObject()
+            copyClashBaseOptions(downloadSettings, download)
+            copyClashField(downloadSettings, download, "mode", "mode")
+            copyClashField(downloadSettings, download, "host", "host")
+            copyClashField(downloadSettings, download, "path", "path")
+            copyClashXmux(downloadSettings["reuse-settings"], download)
+            copyClashField(downloadSettings, download, "server", "server")
+            copyClashField(downloadSettings, download, "port", "server_port")
+
+            val realityOptions = downloadSettings["reality-opts"] as? Map<*, *>
+            if (downloadSettings["tls"]?.toString() == "true" || realityOptions != null) {
+                val tls = JSONObject().apply { put("enabled", true) }
+                copyClashField(downloadSettings, tls, "servername", "server_name")
+                copyClashField(downloadSettings, tls, "alpn", "alpn")
+                copyClashField(downloadSettings, tls, "skip-cert-verify", "insecure")
+                downloadSettings["client-fingerprint"]?.let { fingerprint ->
+                    tls.put("utls", JSONObject().apply {
+                        put("enabled", true)
+                        put("fingerprint", fingerprint)
+                    })
+                }
+                realityOptions?.let { reality ->
+                    tls.put("reality", JSONObject().apply {
+                        put("enabled", true)
+                        copyClashField(reality, this, "public-key", "public_key")
+                        copyClashField(reality, this, "short-id", "short_id")
+                    })
+                }
+                download.put("tls", tls)
+            }
+
+            if (download.length() > 0) singBox.put("download", download)
+        }
+
+        return if (singBox.length() > 0) singBox.toString(2).replace("\\/", "/") else ""
+    }
+
     private fun isSingBoxFormat(json: JSONObject): Boolean {
-        return json.has("x_padding_bytes") || json.has("sc_max_each_post_bytes") ||
-               json.has("sc_min_posts_interval_ms") || json.has("sc_stream_up_server_secs") ||
-               json.has("download")
+        return SING_BOX_KEYS.any(json::has) ||
+                json.optJSONObject("xmux")?.let { xmux -> SING_BOX_XMUX_KEYS.any(xmux::has) } == true
     }
 
     private fun isXrayFormat(json: JSONObject): Boolean {
-        return json.has("xPaddingBytes") || json.has("scMaxEachPostBytes") ||
-               json.has("scMinPostsIntervalMs") || json.has("scStreamUpServerSecs") ||
-               json.has("downloadSettings")
+        return XRAY_KEYS.any(json::has) ||
+                json.optJSONObject("xmux")?.let { xmux -> XRAY_XMUX_KEYS.any(xmux::has) } == true
     }
 
     private fun convertField(from: JSONObject, to: JSONObject, fromKey: String, toKey: String) {
@@ -281,4 +334,88 @@ object XhttpExtraConverter {
             to.put(toKey, from.get(fromKey))
         }
     }
+
+    private fun copyClashBaseOptions(from: Map<*, *>, to: JSONObject) {
+        CLASH_BASE_KEYS.forEach { (clashKey, singBoxKey) ->
+            copyClashField(from, to, clashKey, singBoxKey)
+        }
+    }
+
+    private fun copyClashXmux(value: Any?, to: JSONObject) {
+        (value as? Map<*, *>)?.let { reuseSettings ->
+            val xmux = JSONObject()
+            CLASH_XMUX_KEYS.forEach { (clashKey, singBoxKey) ->
+                copyClashField(reuseSettings, xmux, clashKey, singBoxKey)
+            }
+            if (xmux.length() > 0) to.put("xmux", xmux)
+        }
+    }
+
+    private fun copyClashField(from: Map<*, *>, to: JSONObject, fromKey: String, toKey: String) {
+        if (from.containsKey(fromKey) && from[fromKey] != null) {
+            to.put(toKey, JSONObject.wrap(from[fromKey]))
+        }
+    }
+
+    private val CLASH_BASE_KEYS = mapOf(
+        "headers" to "headers",
+        "x-padding-bytes" to "x_padding_bytes",
+        "no-grpc-header" to "no_grpc_header",
+        "no-sse-header" to "no_sse_header",
+        "sc-max-each-post-bytes" to "sc_max_each_post_bytes",
+        "sc-min-posts-interval-ms" to "sc_min_posts_interval_ms",
+        "sc-max-buffered-posts" to "sc_max_buffered_posts",
+        "sc-stream-up-server-secs" to "sc_stream_up_server_secs",
+        "x-padding-obfs-mode" to "x_padding_obfs_mode",
+        "x-padding-key" to "x_padding_key",
+        "x-padding-header" to "x_padding_header",
+        "x-padding-placement" to "x_padding_placement",
+        "x-padding-method" to "x_padding_method",
+        "uplink-http-method" to "uplink_http_method",
+        "session-placement" to "session_placement",
+        "session-key" to "session_key",
+        "seq-placement" to "seq_placement",
+        "seq-key" to "seq_key",
+        "uplink-data-placement" to "uplink_data_placement",
+        "uplink-data-key" to "uplink_data_key",
+        "uplink-chunk-size" to "uplink_chunk_size"
+    )
+
+    private val CLASH_XMUX_KEYS = mapOf(
+        "max-concurrency" to "max_concurrency",
+        "max-connections" to "max_connections",
+        "c-max-reuse-times" to "c_max_reuse_times",
+        "h-max-request-times" to "h_max_request_times",
+        "h-max-reusable-secs" to "h_max_reusable_secs",
+        "h-keep-alive-period" to "h_keep_alive_period"
+    )
+
+    private val SING_BOX_KEYS = setOf(
+        "x_padding_bytes", "sc_max_each_post_bytes", "sc_min_posts_interval_ms",
+        "sc_max_buffered_posts", "sc_stream_up_server_secs", "no_grpc_header",
+        "no_sse_header", "headers", "x_padding_obfs_mode", "x_padding_key",
+        "x_padding_header", "x_padding_placement", "x_padding_method",
+        "uplink_http_method", "session_placement", "session_key", "seq_placement",
+        "seq_key", "uplink_data_placement", "uplink_data_key", "uplink_chunk_size",
+        "download"
+    )
+
+    private val XRAY_KEYS = setOf(
+        "xPaddingBytes", "scMaxEachPostBytes", "scMinPostsIntervalMs",
+        "scMaxBufferedPosts", "scStreamUpServerSecs", "noGRPCHeader",
+        "noSSEHeader", "headers", "xPaddingObfsMode", "xPaddingKey",
+        "xPaddingHeader", "xPaddingPlacement", "xPaddingMethod", "uplinkHttpMethod",
+        "sessionIdPosition", "sessionIdName", "seqPosition", "seqName",
+        "dataUpPlacement", "dataUpName", "dataUpSplitSize", "downloadSettings"
+    )
+
+    private val SING_BOX_XMUX_KEYS = setOf(
+        "max_concurrency", "max_connections", "c_max_reuse_times",
+        "h_max_request_times", "h_max_reusable_secs", "h_keep_alive_period"
+    )
+
+    private val XRAY_XMUX_KEYS = setOf(
+        "maxConcurrency", "maxConnections", "cMaxReuseTimes",
+        "hMaxRequestTimes", "hMaxReusableSecs", "hKeepAlivePeriod"
+    )
 }

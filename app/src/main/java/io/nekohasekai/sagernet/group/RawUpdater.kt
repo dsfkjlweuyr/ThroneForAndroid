@@ -20,7 +20,9 @@ import io.nekohasekai.sagernet.fmt.trojan_go.parseTrojanGo
 import io.nekohasekai.sagernet.fmt.tuic.TuicBean
 import io.nekohasekai.sagernet.fmt.v2ray.StandardV2RayBean
 import io.nekohasekai.sagernet.fmt.v2ray.VMessBean
+import io.nekohasekai.sagernet.fmt.v2ray.XhttpExtraConverter
 import io.nekohasekai.sagernet.fmt.v2ray.isTLS
+import io.nekohasekai.sagernet.fmt.v2ray.normalizeXhttpMode
 import io.nekohasekai.sagernet.fmt.v2ray.setTLS
 import io.nekohasekai.sagernet.fmt.wireguard.WireGuardBean
 import io.nekohasekai.sagernet.fmt.wireguard.parseWireGuardConfig
@@ -514,92 +516,10 @@ object RawUpdater : GroupUpdater() {
                                                 bean.path = it
                                             }
                                             xhttpOpts["mode"]?.toString()?.let {
-                                                bean.xhttpMode = when (it) {
-                                                    "auto", "packet-up", "stream-up", "stream-one" -> it
-                                                    "" -> "auto"
-                                                    else -> bean.xhttpMode
-                                                }
+                                                bean.xhttpMode = normalizeXhttpMode(it)
                                             }
 
-                                            val extra = JSONObject()
-                                            xhttpOpts["no-grpc-header"]?.let {
-                                                extra.put("no_grpc_header", it)
-                                            }
-                                            xhttpOpts["x-padding-bytes"]?.toString()?.let {
-                                                extra.put("x_padding_bytes", it)
-                                            }
-                                            xhttpOpts["sc-max-each-post-bytes"]?.toString()?.let {
-                                                extra.put("sc_max_each_post_bytes", it)
-                                            }
-                                            xhttpOpts["sc-min-posts-interval-ms"]?.toString()?.let {
-                                                extra.put("sc_min_posts_interval_ms", it)
-                                            }
-                                            xhttpOpts["x-padding-obfs-mode"]?.let {
-                                                extra.put("x_padding_obfs_mode", it)
-                                            }
-                                            xhttpOpts["x-padding-key"]?.toString()?.let {
-                                                extra.put("x_padding_key", it)
-                                            }
-                                            xhttpOpts["x-padding-header"]?.toString()?.let {
-                                                extra.put("x_padding_header", it)
-                                            }
-                                            xhttpOpts["x-padding-placement"]?.toString()?.let {
-                                                extra.put("x_padding_placement", it)
-                                            }
-                                            xhttpOpts["x-padding-method"]?.toString()?.let {
-                                                extra.put("x_padding_method", it)
-                                            }
-                                            xhttpOpts["uplink-http-method"]?.toString()?.let {
-                                                extra.put("uplink_http_method", it)
-                                            }
-                                            xhttpOpts["session-placement"]?.toString()?.let {
-                                                extra.put("session_placement", it)
-                                            }
-                                            xhttpOpts["session-key"]?.toString()?.let {
-                                                extra.put("session_key", it)
-                                            }
-                                            xhttpOpts["seq-placement"]?.toString()?.let {
-                                                extra.put("seq_placement", it)
-                                            }
-                                            xhttpOpts["seq-key"]?.toString()?.let {
-                                                extra.put("seq_key", it)
-                                            }
-                                            xhttpOpts["uplink-data-placement"]?.toString()?.let {
-                                                extra.put("uplink_data_placement", it)
-                                            }
-                                            xhttpOpts["uplink-data-key"]?.toString()?.let {
-                                                extra.put("uplink_data_key", it)
-                                            }
-                                            xhttpOpts["uplink-chunk-size"]?.toString()?.let {
-                                                extra.put("uplink_chunk_size", it)
-                                            }
-                                            (xhttpOpts["reuse-settings"] as? Map<*, *>)?.let { reuseSettings ->
-                                                val xmux = JSONObject()
-                                                reuseSettings["max-connections"]?.toString()?.let {
-                                                    xmux.put("max_connections", it)
-                                                }
-                                                reuseSettings["max-concurrency"]?.toString()?.let {
-                                                    xmux.put("max_concurrency", it)
-                                                }
-                                                reuseSettings["c-max-reuse-times"]?.toString()?.let {
-                                                    xmux.put("c_max_reuse_times", it)
-                                                }
-                                                reuseSettings["h-max-request-times"]?.toString()?.let {
-                                                    xmux.put("h_max_request_times", it)
-                                                }
-                                                reuseSettings["h-max-reusable-secs"]?.toString()?.let {
-                                                    xmux.put("h_max_reusable_secs", it)
-                                                }
-                                                reuseSettings["h-keep-alive-period"]?.toString()?.let {
-                                                    xmux.put("h_keep_alive_period", it)
-                                                }
-                                                if (xmux.length() > 0) {
-                                                    extra.put("xmux", xmux)
-                                                }
-                                            }
-                                            if (extra.length() > 0) {
-                                                bean.xhttpExtra = extra.toString(2)
-                                            }
+                                            bean.xhttpExtra = XhttpExtraConverter.clashToSingBox(xhttpOpts)
                                         }
                                     }
 

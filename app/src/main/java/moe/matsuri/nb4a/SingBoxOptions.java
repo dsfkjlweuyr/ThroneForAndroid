@@ -4802,8 +4802,11 @@ public class SingBoxOptions {
         public Map<String, String> headers;
         public com.google.gson.JsonElement x_padding_bytes;
         public com.google.gson.JsonElement no_grpc_header;
+        public com.google.gson.JsonElement no_sse_header;
         public com.google.gson.JsonElement sc_max_each_post_bytes;
         public com.google.gson.JsonElement sc_min_posts_interval_ms;
+        public com.google.gson.JsonElement sc_max_buffered_posts;
+        public com.google.gson.JsonElement sc_stream_up_server_secs;
         public com.google.gson.JsonElement x_padding_obfs_mode;
         public com.google.gson.JsonElement x_padding_key;
         public com.google.gson.JsonElement x_padding_header;
