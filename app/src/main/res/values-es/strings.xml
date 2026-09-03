@@ -481,4 +481,27 @@
     <string name="speed_test_download_format">Download: %1$s (%2$s)</string>
     <string name="speed_test_upload_format">Upload: %1$s (%2$s)</string>
     <string name="speed_test_rate_mbps">%1$.2f Mbps</string>
+
+    <!-- Custom Icon Pack -->
+    <string name="custom_icon">Icono personalizado</string>
+    <string name="custom_icon_import">Importar paquete de iconos</string>
+    <string name="custom_icon_reset">Restablecer valores predeterminados</string>
+    <string name="custom_icon_preview_shortcut">Icono de acceso directo</string>
+    <string name="custom_icon_shortcut_subtitle">La plataforma Android no admite modificar el icono de la aplicación. ¡Haga un fork si necesita cambiarlo!</string>
+    <string name="custom_icon_preview_tile">Mosaico de ajustes rápidos</string>
+    <string name="custom_icon_apply_pack">Aplicar este paquete de iconos</string>
+    <string name="custom_icon_apply_success">Paquete de iconos aplicado. Se solicitó el acceso directo.</string>
+    <string name="custom_icon_pin_shortcut_not_supported">Su lanzador no admite anclar accesos directos.</string>
+    <string name="custom_icon_no_pack_to_apply">Primero importe un paquete de iconos.</string>
+    <string name="custom_icon_tile_state_active">Activo (toca para cambiar)</string>
+    <string name="custom_icon_tile_state_inactive">Inactivo (toca para cambiar)</string>
+    <string name="custom_icon_import_success">Paquete de iconos importado con éxito</string>
+    <string name="custom_icon_reset_success">Iconos predeterminados restaurados</string>
+    <string name="custom_icon_reset_confirm">¿Está seguro de que desea restaurar los iconos predeterminados?</string>
+    <string name="custom_icon_error_missing">Falta archivo requerido en el paquete: %s</string>
+    <string name="custom_icon_error_dimension">La resolución de %1$s debe ser de 512x512 píxeles (actual: %2$dx%3$d)</string>
+    <string name="custom_icon_error_not_png">%s no es una imagen PNG válida</string>
+    <string name="custom_icon_error_security">Error de verificación de seguridad: %s</string>
+    <string name="custom_icon_requirement_tip">El paquete de iconos debe ser un ZIP que contenga icon.png y tile.png de 512x512.</string>
 </resources>
+

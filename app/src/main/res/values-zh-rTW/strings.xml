@@ -636,4 +636,27 @@
     <string name="speed_test_download_format">下載：%1$s（%2$s）</string>
     <string name="speed_test_upload_format">上傳：%1$s（%2$s）</string>
     <string name="speed_test_rate_mbps">%1$.2f Mbps</string>
+
+    <!-- Custom Icon Pack -->
+    <string name="custom_icon">自訂圖示</string>
+    <string name="custom_icon_import">匯入圖示包</string>
+    <string name="custom_icon_reset">恢復預設</string>
+    <string name="custom_icon_preview_shortcut">捷徑圖示</string>
+    <string name="custom_icon_shortcut_subtitle">Android平台不支援修改軟體圖示，若有需要請自行fork後修改！</string>
+    <string name="custom_icon_preview_tile">快速設定圖示</string>
+    <string name="custom_icon_apply_pack">套用此圖示包</string>
+    <string name="custom_icon_apply_success">已套用圖示包並請求建立桌面捷徑。</string>
+    <string name="custom_icon_pin_shortcut_not_supported">目前桌面啟動器不支援建立桌面捷徑。</string>
+    <string name="custom_icon_no_pack_to_apply">請先匯入圖示包。</string>
+    <string name="custom_icon_tile_state_active">開啟狀態（點擊切換）</string>
+    <string name="custom_icon_tile_state_inactive">關閉狀態（點擊切換）</string>
+    <string name="custom_icon_import_success">圖示包匯入成功</string>
+    <string name="custom_icon_reset_success">已恢復預設圖示</string>
+    <string name="custom_icon_reset_confirm">確定要恢復預設圖示嗎？</string>
+    <string name="custom_icon_error_missing">圖示包缺少必要檔案：%s</string>
+    <string name="custom_icon_error_dimension">%1$s 解析度必須為 512x512 像素（目前為：%2$dx%3$d）</string>
+    <string name="custom_icon_error_not_png">%s 不是有效的 PNG 圖片檔案</string>
+    <string name="custom_icon_error_security">安全檢查失敗：%s</string>
+    <string name="custom_icon_requirement_tip">圖示包須為 ZIP 壓縮包，內含 512x512 的 icon.png 與 tile.png。</string>
 </resources>
+

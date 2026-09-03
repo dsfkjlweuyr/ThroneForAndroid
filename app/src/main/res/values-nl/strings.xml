@@ -46,4 +46,27 @@
     <string name="speed_test_download_format">Download: %1$s (%2$s)</string>
     <string name="speed_test_upload_format">Upload: %1$s (%2$s)</string>
     <string name="speed_test_rate_mbps">%1$.2f Mbps</string>
+
+    <!-- Custom Icon Pack -->
+    <string name="custom_icon">Aangepast pictogram</string>
+    <string name="custom_icon_import">Pictogrampakket importeren</string>
+    <string name="custom_icon_reset">Standaardinstellingen herstellen</string>
+    <string name="custom_icon_preview_shortcut">Snelkoppelingspictogram</string>
+    <string name="custom_icon_shortcut_subtitle">Android ondersteunt het wijzigen van het app-pictogram niet. Fork en pas aan indien nodig!</string>
+    <string name="custom_icon_preview_tile">Snelle instellingen-tegel</string>
+    <string name="custom_icon_apply_pack">Dit pictogrampakket toepassen</string>
+    <string name="custom_icon_apply_success">Pictogrampakket toegepast. Snelkoppeling aangevraagd.</string>
+    <string name="custom_icon_pin_shortcut_not_supported">Uw startscherm ondersteunt het vastzetten van snelkoppelingen niet.</string>
+    <string name="custom_icon_no_pack_to_apply">Importeer eerst een pictogrampakket.</string>
+    <string name="custom_icon_tile_state_active">Actief (tik om te wisselen)</string>
+    <string name="custom_icon_tile_state_inactive">Inactief (tik om te wisselen)</string>
+    <string name="custom_icon_import_success">Pictogrampakket succesvol geïmporteerd</string>
+    <string name="custom_icon_reset_success">Standaardpictogrammen hersteld</string>
+    <string name="custom_icon_reset_confirm">Weet u zeker dat u de standaardpictogrammen wilt herstellen?</string>
+    <string name="custom_icon_error_missing">Pictogrampakket moet het volgende bevatten: %s</string>
+    <string name="custom_icon_error_dimension">%1$s moet 512x512 pixels zijn (huidig: %2$dx%3$d)</string>
+    <string name="custom_icon_error_not_png">%s is geen geldige PNG-afbeelding</string>
+    <string name="custom_icon_error_security">Beveiligingscontrole mislukt: %s</string>
+    <string name="custom_icon_requirement_tip">Pictogrampakket moet een ZIP-bestand zijn met 512x512 icon.png en tile.png.</string>
 </resources>
+

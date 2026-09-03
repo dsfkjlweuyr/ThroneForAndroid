@@ -423,4 +423,27 @@
     <string name="speed_test_download_format">Download: %1$s (%2$s)</string>
     <string name="speed_test_upload_format">Upload: %1$s (%2$s)</string>
     <string name="speed_test_rate_mbps">%1$.2f Mbps</string>
+
+    <!-- Custom Icon Pack -->
+    <string name="custom_icon">Özel Simge</string>
+    <string name="custom_icon_import">Simge Paketini İçe Aktar</string>
+    <string name="custom_icon_reset">Varsayılana Sıfırla</string>
+    <string name="custom_icon_preview_shortcut">Kısayol Simgesi</string>
+    <string name="custom_icon_shortcut_subtitle">Android platformu uygulama simgesini değiştirmeyi desteklemez. Gerekirse kendiniz fork edin!</string>
+    <string name="custom_icon_preview_tile">Hızlı Ayarlar Kutucuğu</string>
+    <string name="custom_icon_apply_pack">Bu Simge Paketini Uygula</string>
+    <string name="custom_icon_apply_success">Simge paketi uygulandı. Masaüstü kısayolu istendi.</string>
+    <string name="custom_icon_pin_shortcut_not_supported">Başlatıcınız kısayol sabitlemeyi desteklemiyor.</string>
+    <string name="custom_icon_no_pack_to_apply">Lütfen önce bir simge paketi içe aktarın.</string>
+    <string name="custom_icon_tile_state_active">Etkin (Değiştirmek için dokunun)</string>
+    <string name="custom_icon_tile_state_inactive">Devre dışı (Değiştirmek için dokunun)</string>
+    <string name="custom_icon_import_success">Simge paketi başarıyla içe aktarıldı</string>
+    <string name="custom_icon_reset_success">Varsayılan simgeler geri yüklendi</string>
+    <string name="custom_icon_reset_confirm">Varsayılan simgeleri geri yüklemek istediğinizden emin misiniz?</string>
+    <string name="custom_icon_error_missing">Simge paketi şunu içermelidir: %s</string>
+    <string name="custom_icon_error_dimension">%1$s çözünürlüğü 512x512 piksel olmalıdır (mevcut: %2$dx%3$d)</string>
+    <string name="custom_icon_error_not_png">%s geçerli bir PNG resmi değil</string>
+    <string name="custom_icon_error_security">Güvenlik doğrulaması başarısız: %s</string>
+    <string name="custom_icon_requirement_tip">Simge paketi 512x512 icon.png ve tile.png içeren bir ZIP arşivi olmalıdır.</string>
 </resources>
+

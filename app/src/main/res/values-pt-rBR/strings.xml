@@ -55,4 +55,27 @@
     <string name="speed_test_download_format">Download: %1$s (%2$s)</string>
     <string name="speed_test_upload_format">Upload: %1$s (%2$s)</string>
     <string name="speed_test_rate_mbps">%1$.2f Mbps</string>
+
+    <!-- Custom Icon Pack -->
+    <string name="custom_icon">Ícone personalizado</string>
+    <string name="custom_icon_import">Importar pacote de ícones</string>
+    <string name="custom_icon_reset">Restaurar padrão</string>
+    <string name="custom_icon_preview_shortcut">Ícone do atalho</string>
+    <string name="custom_icon_shortcut_subtitle">O Android não suporta alterar o ícone do app. Se necessário, faça um fork e modifique você mesmo!</string>
+    <string name="custom_icon_preview_tile">Bloco de configurações rápidas</string>
+    <string name="custom_icon_apply_pack">Aplicar este pacote de ícones</string>
+    <string name="custom_icon_apply_success">Pacote aplicado. Criação de atalho solicitada.</string>
+    <string name="custom_icon_pin_shortcut_not_supported">Seu inicializador não suporta fixar atalhos.</string>
+    <string name="custom_icon_no_pack_to_apply">Por favor, importe um pacote de ícones primeiro.</string>
+    <string name="custom_icon_tile_state_active">Ativo (toque para alternar)</string>
+    <string name="custom_icon_tile_state_inactive">Inativo (toque para alternar)</string>
+    <string name="custom_icon_import_success">Pacote de ícones importado com sucesso</string>
+    <string name="custom_icon_reset_success">Ícones padrão restaurados</string>
+    <string name="custom_icon_reset_confirm">Tem certeza de que deseja restaurar os ícones padrão?</string>
+    <string name="custom_icon_error_missing">O pacote deve conter o arquivo: %s</string>
+    <string name="custom_icon_error_dimension">A resolução de %1$s deve ser 512x512 pixels (atual: %2$dx%3$d)</string>
+    <string name="custom_icon_error_not_png">%s não é uma imagem PNG válida</string>
+    <string name="custom_icon_error_security">Falha na verificação de segurança: %s</string>
+    <string name="custom_icon_requirement_tip">O pacote deve ser um arquivo ZIP contendo icon.png e tile.png de 512x512.</string>
 </resources>
+

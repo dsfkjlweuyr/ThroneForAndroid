@@ -145,4 +145,27 @@
     <string name="speed_test_download_format">Download: %1$s (%2$s)</string>
     <string name="speed_test_upload_format">Upload: %1$s (%2$s)</string>
     <string name="speed_test_rate_mbps">%1$.2f Mbps</string>
+
+    <!-- Custom Icon Pack -->
+    <string name="custom_icon">Користувацькі іконки</string>
+    <string name="custom_icon_import">Імпортувати набір іконок</string>
+    <string name="custom_icon_reset">Скинути за замовчуванням</string>
+    <string name="custom_icon_preview_shortcut">Іконка ярлика</string>
+    <string name="custom_icon_shortcut_subtitle">Платформа Android не підтримує зміну іконки програми. За потреби зробіть fork та змініть самостійно!</string>
+    <string name="custom_icon_preview_tile">Плитка швидких налаштувань</string>
+    <string name="custom_icon_apply_pack">Застосувати цей набір іконок</string>
+    <string name="custom_icon_apply_success">Набір іконок застосовано. Запитано створення ярлика на робочому столі.</string>
+    <string name="custom_icon_pin_shortcut_not_supported">Поточний лаунчер не підтримує закріплення ярликів.</string>
+    <string name="custom_icon_no_pack_to_apply">Спочатку імпортуйте набір іконок.</string>
+    <string name="custom_icon_tile_state_active">Увімкнено (натисніть для перемикання)</string>
+    <string name="custom_icon_tile_state_inactive">Вимкнено (натисніть для перемикання)</string>
+    <string name="custom_icon_import_success">Набір іконок успішно імпортовано</string>
+    <string name="custom_icon_reset_success">Відновлено іконки за замовчуванням</string>
+    <string name="custom_icon_reset_confirm">Ви впевнені, що хочете відновити іконки за замовчуванням?</string>
+    <string name="custom_icon_error_missing">У наборі іконок відсутній обов\'язковий файл: %s</string>
+    <string name="custom_icon_error_dimension">Роздільна здатність %1$s має бути 512x512 пікселів (поточна: %2$dx%3$d)</string>
+    <string name="custom_icon_error_not_png">%s не є коректним зображенням PNG</string>
+    <string name="custom_icon_error_security">Помилка перевірки безпеки: %s</string>
+    <string name="custom_icon_requirement_tip">Набір іконок має бути ZIP-архівом, що містить icon.png та tile.png розміром 512x512.</string>
 </resources>
+

@@ -70,4 +70,27 @@
     <string name="speed_test_download_format">Download: %1$s (%2$s)</string>
     <string name="speed_test_upload_format">Upload: %1$s (%2$s)</string>
     <string name="speed_test_rate_mbps">%1$.2f Mbps</string>
+
+    <!-- Custom Icon Pack -->
+    <string name="custom_icon">Benutzerdefiniertes Symbol</string>
+    <string name="custom_icon_import">Symbolpaket importieren</string>
+    <string name="custom_icon_reset">Auf Standard zurücksetzen</string>
+    <string name="custom_icon_preview_shortcut">Verknüpfungssymbol</string>
+    <string name="custom_icon_shortcut_subtitle">Die Android-Plattform unterstützt das Ändern von App-Symbolen nicht. Bei Bedarf bitte selbst forken und anpassen!</string>
+    <string name="custom_icon_preview_tile">Schnelleinstellungskachel</string>
+    <string name="custom_icon_apply_pack">Dieses Symbolpaket anwenden</string>
+    <string name="custom_icon_apply_success">Symbolpaket angewendet. Desktop-Verknüpfung angefordert.</string>
+    <string name="custom_icon_pin_shortcut_not_supported">Der aktuelle Launcher unterstützt das Anheften von Verknüpfungen nicht.</string>
+    <string name="custom_icon_no_pack_to_apply">Bitte zuerst ein Symbolpaket importieren.</string>
+    <string name="custom_icon_tile_state_active">Aktiv (Zum Umschalten tippen)</string>
+    <string name="custom_icon_tile_state_inactive">Inaktiv (Zum Umschalten tippen)</string>
+    <string name="custom_icon_import_success">Symbolpaket erfolgreich importiert</string>
+    <string name="custom_icon_reset_success">Standardsymbole wiederhergestellt</string>
+    <string name="custom_icon_reset_confirm">Möchten Sie die Standardsymbole wirklich wiederherstellen?</string>
+    <string name="custom_icon_error_missing">Im Symbolpaket fehlt die Datei: %s</string>
+    <string name="custom_icon_error_dimension">%1$s muss eine Auflösung von 512x512 Pixeln haben (aktuell: %2$dx%3$d)</string>
+    <string name="custom_icon_error_not_png">%s ist keine gültige PNG-Datei</string>
+    <string name="custom_icon_error_security">Sicherheitsprüfung fehlgeschlagen: %s</string>
+    <string name="custom_icon_requirement_tip">Das Symbolpaket muss ein ZIP-Archiv sein, das icon.png und tile.png in 512x512 enthält.</string>
 </resources>
+

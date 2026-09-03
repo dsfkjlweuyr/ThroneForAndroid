@@ -42,4 +42,27 @@
     <string name="speed_test_download_format">Download: %1$s (%2$s)</string>
     <string name="speed_test_upload_format">Upload: %1$s (%2$s)</string>
     <string name="speed_test_rate_mbps">%1$.2f Mbps</string>
+
+    <!-- Custom Icon Pack -->
+    <string name="custom_icon">Icona personalizzata</string>
+    <string name="custom_icon_import">Importa pacchetto di icone</string>
+    <string name="custom_icon_reset">Ripristina predefiniti</string>
+    <string name="custom_icon_preview_shortcut">Icona di scelta rapida</string>
+    <string name="custom_icon_shortcut_subtitle">La piattaforma Android non supporta la modifica dell\'icona dell\'app. Esegui il fork se necessario!</string>
+    <string name="custom_icon_preview_tile">Riquadro Impostazioni rapide</string>
+    <string name="custom_icon_apply_pack">Applica questo pacchetto</string>
+    <string name="custom_icon_apply_success">Pacchetto applicato. Creazione scorciatoia richiesta.</string>
+    <string name="custom_icon_pin_shortcut_not_supported">Il tuo launcher non supporta il blocco delle scorciatoie.</string>
+    <string name="custom_icon_no_pack_to_apply">Importa prima un pacchetto di icone.</string>
+    <string name="custom_icon_tile_state_active">Attivo (tocca per alternare)</string>
+    <string name="custom_icon_tile_state_inactive">Inattivo (tocca per alternare)</string>
+    <string name="custom_icon_import_success">Pacchetto di icone importato con successo</string>
+    <string name="custom_icon_reset_success">Icone predefinite ripristinate</string>
+    <string name="custom_icon_reset_confirm">Sei sicuro di voler ripristinare le icone predefinite?</string>
+    <string name="custom_icon_error_missing">Il pacchetto di icone deve contenere: %s</string>
+    <string name="custom_icon_error_dimension">La risoluzione di %1$s deve essere di 512x512 pixel (attuale: %2$dx%3$d)</string>
+    <string name="custom_icon_error_not_png">%s non è un\'immagine PNG valida</string>
+    <string name="custom_icon_error_security">Verifica di sicurezza fallita: %s</string>
+    <string name="custom_icon_requirement_tip">Il pacchetto di icone deve essere un archivio ZIP contenente icon.png e tile.png di 512x512.</string>
 </resources>
+

@@ -25,7 +25,7 @@
 
 - [x] 3.1 改造 [`app/src/main/java/io/nekohasekai/sagernet/bg/TileService.kt`](app/src/main/java/io/nekohasekai/sagernet/bg/TileService.kt)，仅在应用图标包激活状态下动态加载自定义磁贴 `Icon`（`Icon.createWithBitmap`），未应用或不存在时无缝回退至内置 `R.drawable.ic_throne_tile`。
 - [x] 3.2 移除导入时自动生效磁贴逻辑，改为底部“应用此图标包”操作（一键创建桌面快捷方式入口 + 动态激活生效系统磁贴，无需重启），并更新快捷方式图标标题与平台限制副标题说明。
-- [ ] 3.3 **批次 3 验证门禁**：
+- [x] 3.3 **批次 3 验证门禁**：
   - 适用场景：Android 7.0+ (API 24+) 真机系统状态栏快捷开关验证与端到端 CI 验证。
   - 预期结果：系统下拉通知栏中的代理快捷开关显示自定义图标，服务启动/停止时状态切换正常；恢复默认后快捷开关还原为默认图标。
   - 最低证据：完整 CI 构建通过，真机下拉通知栏快捷开关视觉验证生效。

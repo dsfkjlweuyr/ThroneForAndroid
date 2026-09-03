@@ -609,4 +609,27 @@
     <string name="speed_test_download_format">Download: %1$s (%2$s)</string>
     <string name="speed_test_upload_format">Upload: %1$s (%2$s)</string>
     <string name="speed_test_rate_mbps">%1$.2f Mbps</string>
+
+    <!-- Custom Icon Pack -->
+    <string name="custom_icon">사용자 정의 아이콘</string>
+    <string name="custom_icon_import">아이콘 팩 가져오기</string>
+    <string name="custom_icon_reset">기본값으로 복원</string>
+    <string name="custom_icon_preview_shortcut">바로가기 아이콘</string>
+    <string name="custom_icon_shortcut_subtitle">Android 플랫폼은 앱 아이콘 수정을 지원하지 않습니다. 필요한 경우 직접 fork하여 수정하세요!</string>
+    <string name="custom_icon_preview_tile">빠른 설정 타일</string>
+    <string name="custom_icon_apply_pack">이 아이콘 팩 적용</string>
+    <string name="custom_icon_apply_success">아이콘 팩이 적용되었으며 홈 화면 바로가기 생성을 요청했습니다.</string>
+    <string name="custom_icon_pin_shortcut_not_supported">현재 런처에서 바로가기 고정을 지원하지 않습니다. </string>
+    <string name="custom_icon_no_pack_to_apply">먼저 아이콘 팩을 가져오세요.</string>
+    <string name="custom_icon_tile_state_active">활성화됨 (탭하여 전환)</string>
+    <string name="custom_icon_tile_state_inactive">비활성화됨 (탭하여 전환)</string>
+    <string name="custom_icon_import_success">아이콘 팩을 성공적으로 가져왔습니다</string>
+    <string name="custom_icon_reset_success">기본 아이콘으로 복원되었습니다</string>
+    <string name="custom_icon_reset_confirm">기본 아이콘으로 복원하시겠습니까?</string>
+    <string name="custom_icon_error_missing">아이콘 팩에 필수 파일이 없습니다: %s</string>
+    <string name="custom_icon_error_dimension">%1$s 해상도는 512x512 픽셀이어야 합니다 (현재: %2$dx%3$d)</string>
+    <string name="custom_icon_error_not_png">%s 은(는) 유효한 PNG 이미지 파일이 아닙니다</string>
+    <string name="custom_icon_error_security">보안 검증 실패: %s</string>
+    <string name="custom_icon_requirement_tip">아이콘 팩은 512x512의 icon.png 및 tile.png를 포함하는 ZIP 파일이어야 합니다.</string>
 </resources>
+
