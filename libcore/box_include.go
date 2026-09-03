@@ -41,6 +41,7 @@ import (
 
 	h2http "libcore/protocol/http"
 	"libcore/protocol/juicity"
+	customVless "libcore/protocol/vless"
 
 	_ "github.com/sagernet/sing-box/experimental/clashapi"
 	_ "github.com/sagernet/sing-box/transport/v2rayquic"
@@ -89,6 +90,8 @@ func nekoboxAndroidOutboundRegistry() *outbound.Registry {
 	ssh.RegisterOutbound(registry)
 	shadowtls.RegisterOutbound(registry)
 	vless.RegisterOutbound(registry)
+	// 覆盖 sing-box 的 vless outbound：支持 XHTTP (SplitHTTP) 客户端传输驱动
+	customVless.RegisterOutbound(registry)
 	anytls.RegisterOutbound(registry)
 
 	hysteria.RegisterOutbound(registry)

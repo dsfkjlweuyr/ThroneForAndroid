@@ -7,9 +7,9 @@
 
 ## 2. 实现并注册扩展版 VLESS Outbound (libcore)
 
-- [ ] 2.1 在 `libcore/protocol/vless` 中实现自定义 `VLESSOutboundOptions` 与 `NewOutbound`，当 `transport.type == "xhttp"` 时接入 XHTTP 传输驱动，其他传输类型保持官方 `v2ray.NewClientTransport` 委托
-- [ ] 2.2 在 `libcore/box_include.go` 的 `nekoboxAndroidOutboundRegistry` 中注册自定义 VLESS outbound，覆盖官方默认注册
-- [ ] 2.3 编写 `libcore` 单元测试，验证包含 XHTTP 传输配置的 VLESS 出站能够成功反序列化并构造实例
+- [x] 2.1 在 `libcore/protocol/vless` 中实现自定义 `VLESSOutboundOptions` 与 `NewOutbound`，当 `transport.type == "xhttp"` 时接入 XHTTP 传输驱动，其他传输类型保持官方 `v2ray.NewClientTransport` 委托
+- [x] 2.2 在 `libcore/box_include.go` 的 `nekoboxAndroidOutboundRegistry` 中注册自定义 VLESS outbound，覆盖官方默认注册
+- [x] 2.3 编写 `libcore` 单元测试，验证包含 XHTTP 传输配置的 VLESS 出站能够成功反序列化并构造实例
 - [ ] 2.4 批次二验证门禁（CI 构建与内核测试）：提交变更并触发 GitHub Actions CI 构建，验证 `box.New` 在包含 xhttp 节点配置时成功创建实例，不再报 `unknown transport type: xhttp`，且标准 VLESS 节点行为不倒退
 
 ## 3. Android 端配置与数据映射审计对齐 (app)
