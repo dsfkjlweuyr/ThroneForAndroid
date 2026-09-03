@@ -68,7 +68,7 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
             }
         }
 
-        parentFragmentManager.beginTransaction()
+        childFragmentManager.beginTransaction()
             .replace(R.id.about_fragment_holder, AboutContent())
             .commitAllowingStateLoss()
 
@@ -240,13 +240,19 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
 
-            view.layoutParams = view.layoutParams.apply {
+            view.layoutParams = (view.layoutParams ?: ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            )).apply {
                 height = ViewGroup.LayoutParams.WRAP_CONTENT
             }
-            view.findViewById<RecyclerView>(R.id.mal_recyclerview).apply {
+            view.findViewById<RecyclerView>(R.id.mal_recyclerview)?.apply {
                 isNestedScrollingEnabled = false
                 overScrollMode = View.OVER_SCROLL_NEVER
-                layoutParams = layoutParams.apply {
+                layoutParams = (layoutParams ?: ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                )).apply {
                     height = ViewGroup.LayoutParams.WRAP_CONTENT
                 }
             }

@@ -14,7 +14,7 @@ class SettingsFragment : ToolbarFragment(R.layout.layout_config_settings) {
         ViewCompat.setOnApplyWindowInsetsListener(view, ListListener)
         toolbar.setTitle(R.string.settings)
 
-        parentFragmentManager.beginTransaction()
+        childFragmentManager.beginTransaction()
             .replace(R.id.settings, SettingsPreferenceFragment())
             .commitAllowingStateLoss()
     }

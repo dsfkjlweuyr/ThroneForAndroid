@@ -20,7 +20,7 @@ class AboutScrollContractTest {
                 .substringBefore("/>")
                 .contains("android:layout_height=\"wrap_content\"")
         )
-        assertTrue(source.contains("view.layoutParams = view.layoutParams.apply"))
+        assertTrue(source.contains("view.layoutParams = (view.layoutParams ?: ViewGroup.LayoutParams("))
         assertTrue(source.contains("findViewById<RecyclerView>(R.id.mal_recyclerview)"))
         assertTrue(source.contains("isNestedScrollingEnabled = false"))
         assertTrue(source.contains("height = ViewGroup.LayoutParams.WRAP_CONTENT"))
