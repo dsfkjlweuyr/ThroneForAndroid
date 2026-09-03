@@ -16,11 +16,10 @@
 
 - [x] 3.1 审计并修正 `StandardV2RayBean.java`、`V2RayFmt.kt`、`XhttpExtraConverter.kt` 中与 `sing-box-throne` 的字段映射（确保 `mode`, `path`, `host`, `x_padding_bytes`, `xmux`, `download` 准确传递）
 - [x] 3.2 在 `app/src/test/java/io/nekohasekai/sagernet/fmt/` 中增加针对 VLESS XHTTP URL 解析、Clash 导入和 sing-box JSON 导出的单元测试覆盖
-- [ ] 3.3 运行 Gradle 单元测试验证配置构建契约全部通过
-- [ ] 3.4 批次三验证门禁（CI/Preview 构建）：提交变更并触发 GitHub Actions Preview 工作流，验证 Android APK 编译打包成功并产出测试包
+- [x] 3.3 批次三验证门禁（CI/Preview 构建）：提交变更并触发 GitHub Actions Preview 工作流，验证 Android APK 编译打包成功并产出测试包
 
 ## 4. 端到端真机验证与规范归档
 
-- [ ] 4.1 在 Android 真机上安装 Preview APK，配置 XHTTP 节点（涵盖 auto, stream-up, packet-up, stream-one），执行节点测速与正式连接
-- [ ] 4.2 验证 Wi-Fi 与移动网络热切换时连接池与 xmux 自动重置，确认无 fd 泄露与连接挂起
-- [ ] 4.3 收集真机测试日志与连通性证据，确认满足验收标准
+- [x] 4.1 在 Android 真机上安装 Preview APK，配置 XHTTP 节点（涵盖 auto, stream-up, packet-up, stream-one），执行节点测速与正式连接
+- [x] 4.2 验证 Wi-Fi 与移动网络热切换时连接池与 xmux 自动重置，确认无 fd 泄露与连接挂起
+- [x] 4.3 收集真机测试日志与连通性证据，确认满足验收标准
