@@ -25,7 +25,7 @@ type XmuxClient struct {
 }
 
 type XmuxManager struct {
-	options     option.V2RayXHTTPXmuxOptions
+	options     V2RayXHTTPXmuxOptions
 	concurrency int32
 	connections int32
 	newConnFunc func() XmuxConn
@@ -33,7 +33,7 @@ type XmuxManager struct {
 	mtx         sync.Mutex
 }
 
-func NewXmuxManager(options option.V2RayXHTTPXmuxOptions, newConnFunc func() XmuxConn) *XmuxManager {
+func NewXmuxManager(options V2RayXHTTPXmuxOptions, newConnFunc func() XmuxConn) *XmuxManager {
 	return &XmuxManager{
 		options:     options,
 		concurrency: options.GetNormalizedMaxConcurrency().Rand(),

@@ -28,7 +28,7 @@ type DialerClient interface {
 
 // implements xhttp.DialerClient in terms of direct network connections
 type DefaultDialerClient struct {
-	options     *option.V2RayXHTTPBaseOptions
+	options     *V2RayXHTTPBaseOptions
 	client      *http.Client
 	closed      bool
 	httpVersion string

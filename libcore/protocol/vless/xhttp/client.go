@@ -82,7 +82,7 @@ func NewClient(ctx context.Context, dialer N.Dialer, serverAddr M.Socksaddr, opt
 		requestURL.Path += sessionId
 		return requestURL
 	}
-	var xmuxOptions option.V2RayXHTTPXmuxOptions
+	var xmuxOptions V2RayXHTTPXmuxOptions
 	if options.Xmux != nil {
 		xmuxOptions = *options.Xmux
 		if err := xmuxOptions.Validate(); err != nil {
@@ -111,7 +111,7 @@ func NewClient(ctx context.Context, dialer N.Dialer, serverAddr M.Socksaddr, opt
 		dest2 := options2.ServerOptions.Build()
 		var tlsConfig2 tls.Config
 		if options2.TLS != nil {
-			tlsConfig2, err = tls.NewClient(ctx, options2.Server, common.PtrValueOrDefault(options2.TLS))
+			tlsConfig2, err = tls.NewClient(ctx, log.StdLogger(), options2.Server, common.PtrValueOrDefault(options2.TLS))
 			if err != nil {
 				return nil, err
 			}
@@ -125,7 +125,7 @@ func NewClient(ctx context.Context, dialer N.Dialer, serverAddr M.Socksaddr, opt
 			requestURL2.Path += sessionId
 			return requestURL2
 		}
-		var xmuxOptions2 option.V2RayXHTTPXmuxOptions
+		var xmuxOptions2 V2RayXHTTPXmuxOptions
 		if options2.Xmux != nil {
 			xmuxOptions2 = *options2.Xmux
 			if err := xmuxOptions2.Validate(); err != nil {
@@ -325,7 +325,7 @@ func decideHTTPVersion(tlsConfig tls.Config) string {
 	return "2"
 }
 
-func getBaseRequestURL(options *option.V2RayXHTTPBaseOptions, dest M.Socksaddr, tlsConfig tls.Config) (url.URL, error) {
+func getBaseRequestURL(options *V2RayXHTTPBaseOptions, dest M.Socksaddr, tlsConfig tls.Config) (url.URL, error) {
 	var requestURL url.URL
 	if tlsConfig == nil {
 		requestURL.Scheme = "http"
@@ -358,7 +358,7 @@ func isRealityConfig(tlsConfig tls.Config) bool {
 	return strings.Contains(fmt.Sprintf("%T", tlsConfig), ".RealityClientConfig")
 }
 
-func createHTTPClient(dest M.Socksaddr, dialer N.Dialer, options *option.V2RayXHTTPBaseOptions, tlsConfig tls.Config) DialerClient {
+func createHTTPClient(dest M.Socksaddr, dialer N.Dialer, options *V2RayXHTTPBaseOptions, tlsConfig tls.Config) DialerClient {
 	httpVersion := decideHTTPVersion(tlsConfig)
 	dialContext := func(ctxInner context.Context) (net.Conn, error) {
 		conn, err := dialer.DialContext(ctxInner, "tcp", dest)
@@ -397,12 +397,12 @@ func createHTTPClient(dest M.Socksaddr, dialer N.Dialer, options *option.V2RayXH
 		}
 		transport = &http3.Transport{
 			QUICConfig: quicConfig,
-			Dial: func(ctx context.Context, addr string, tlsCfg *gotls.Config, cfg *quic.Config) (quic.EarlyConnection, error) {
+			Dial: func(ctx context.Context, addr string, tlsCfg *gotls.Config, cfg *quic.Config) (*quic.Conn, error) {
 				udpConn, dErr := dialer.DialContext(ctx, N.NetworkUDP, dest)
 				if dErr != nil {
 					return nil, dErr
 				}
-				return qtls.DialEarly(ctx, bufio.NewUnbindPacketConn(udpConn), udpConn.RemoteAddr(), tlsConfig, cfg)
+				return qtls.Dial(ctx, bufio.NewUnbindPacketConn(udpConn), udpConn.RemoteAddr(), tlsConfig, cfg)
 			},
 		}
 	case "2":
