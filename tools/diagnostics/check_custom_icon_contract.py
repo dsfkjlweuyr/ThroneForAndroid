@@ -68,12 +68,22 @@ TOOLS_FILE = ROOT / "app" / "src" / "main" / "java" / "io" / "nekohasekai" / "sa
 tools_content = TOOLS_FILE.read_text(encoding="utf-8")
 assert "tools.add(CustomIconFragment())" in tools_content
 
-STRINGS_EN = (ROOT / "app" / "src" / "main" / "res" / "values" / "strings.xml").read_text(encoding="utf-8")
-STRINGS_ZH = (ROOT / "app" / "src" / "main" / "res" / "values-zh-rCN" / "strings.xml").read_text(encoding="utf-8")
+import xml.etree.ElementTree as ET
+
+EN_XML_PATH = ROOT / "app" / "src" / "main" / "res" / "values" / "strings.xml"
+ZH_XML_PATH = ROOT / "app" / "src" / "main" / "res" / "values-zh-rCN" / "strings.xml"
+
+# 严格 XML SAX 解析校验
+ET.parse(EN_XML_PATH)
+ET.parse(ZH_XML_PATH)
+
+STRINGS_EN = EN_XML_PATH.read_text(encoding="utf-8")
+STRINGS_ZH = ZH_XML_PATH.read_text(encoding="utf-8")
 assert 'name="custom_icon"' in STRINGS_EN
 assert 'name="custom_icon"' in STRINGS_ZH
 assert ">自定义图标</string>" in STRINGS_ZH
 
+print("xml-syntax-valid=true")
 print("custom-icon-manager-contract=true")
 print("png-header-algorithm-verified=true")
 print("path-traversal-protection-verified=true")

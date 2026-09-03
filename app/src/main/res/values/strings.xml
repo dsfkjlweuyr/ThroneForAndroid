@@ -729,7 +729,7 @@
     <string name="custom_icon_import">Import Icon Pack</string>
     <string name="custom_icon_reset">Reset to Default</string>
     <string name="custom_icon_preview_app">Application Icon</string>
-    <string name="custom_icon_preview_tile">Quick Settings Tile (Preview & Simulation)</string>
+    <string name="custom_icon_preview_tile">Quick Settings Tile (Preview and Simulation)</string>
     <string name="custom_icon_tile_state_active">Active (Tap to toggle)</string>
     <string name="custom_icon_tile_state_inactive">Inactive (Tap to toggle)</string>
     <string name="custom_icon_import_success">Icon pack imported successfully</string>
