@@ -1,11 +1,11 @@
 ## 1. 核心管理逻辑与格式校验 (CustomIconManager)
 
-- [ ] 1.1 创建 `CustomIconManager` 工具类，定义图标存储路径（应用私有目录 `custom_icon/`）与文件常量（`icon.png` 与 `tile.png`）。
-- [ ] 1.2 实现安全解压与严格规格校验：防止路径穿越，严格校验 ZIP 包含 `icon.png` 和 `tile.png`，并利用 `inJustDecodeBounds` 校验分辨率必须严格为 512x512 像素。
-- [ ] 1.3 实现位图加载与 Tile 单色 Alpha 蒙版提取算法（`loadTileAlphaBitmap`），并实现原子替换保存与“恢复默认”清除逻辑。
-- [ ] 1.4 编写针对 ZIP 校验与规格检查的单元测试用例，覆盖缺少文件、尺寸不符合 512x512 以及合法图标包等场景。
+- [x] 1.1 创建 `CustomIconManager` 工具类，定义图标存储路径（应用私有目录 `custom_icon/`）与文件常量（`icon.png` 与 `tile.png`）。
+- [x] 1.2 实现安全解压与严格规格校验：防止路径穿越，严格校验 ZIP 包含 `icon.png` 和 `tile.png`，并利用 `inJustDecodeBounds` 校验分辨率必须严格为 512x512 像素。
+- [x] 1.3 实现位图加载与 Tile 单色 Alpha 蒙版提取算法（`loadTileAlphaBitmap`），并实现原子替换保存与“恢复默认”清除逻辑。
+- [x] 1.4 编写针对 ZIP 校验与规格检查的单元测试用例，覆盖缺少文件、尺寸不符合 512x512 以及合法图标包等场景。
 - [ ] 1.5 **批次 1 验证门禁**：
-  - 适用场景：本地测试套件执行（如 `./gradlew testDebugUnitTest`）或 GitHub Actions 测试 Job。
+  - 适用场景：GitHub Actions 测试 Job。
   - 预期结果：ZIP 解压规格校验与 Alpha 提取逻辑测试全部通过。
   - 最低证据：测试用例运行绿灯且日志确认非法尺寸和合法包被正确判定。
 
