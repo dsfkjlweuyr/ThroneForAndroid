@@ -58,6 +58,7 @@ class VLESSXhttpFmtTest {
             "vless://00000000-0000-0000-0000-000000000003@example.com:443" +
                     "?encryption=none&type=xhttp&mode=invalid"
         )
+        bean.initializeDefaultValues()
 
         assertEquals("auto", bean.xhttpMode)
         assertEquals("auto", buildSingBoxOutboundStreamSettings(bean)!!.let {
