@@ -56,30 +56,14 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
             useSystemTheme.setOnPreferenceChangeListener { _, newValue ->
                 val enabled = newValue as Boolean
                 appTheme.isEnabled = !enabled
-                if (DataStore.serviceState.started) {
-                    SagerNet.reloadService()
-                }
-                val theme = if (enabled) Theme.getTheme(Theme.MONET) else Theme.getTheme(DataStore.appTheme)
-                app.setTheme(theme)
-                requireActivity().apply {
-                    setTheme(theme)
-                    ActivityCompat.recreate(this)
-                }
+                needRestart()
                 true
             }
             appTheme.isEnabled = !DataStore.useSystemTheme
         }
 
-        appTheme.setOnPreferenceChangeListener { _, newTheme ->
-            if (DataStore.serviceState.started) {
-                SagerNet.reloadService()
-            }
-            val theme = Theme.getTheme(newTheme as Int)
-            app.setTheme(theme)
-            requireActivity().apply {
-                setTheme(theme)
-                ActivityCompat.recreate(this)
-            }
+        appTheme.setOnPreferenceChangeListener { _, _ ->
+            needRestart()
             true
         }
 

@@ -28,16 +28,17 @@
 - **THEN** 当前 Activity 与 Application 使用 Monet 主题
 - **AND** 预设主题选择器不可用
 
-### Requirement: 主题变更即时刷新应用与服务外观
+### Requirement: 主题变更通过重启应用生效与夜间模式即时应用
 
-主题色变化时，应用 MUST 更新 Application 和当前 Activity 的主题并重建 Activity。代理服务运行期间，主题色变化 MUST 重新加载服务以刷新通知栏颜色。夜间模式变化 MUST 通过 AppCompatDelegate 立即应用。
+应用主题色或系统动态主题（莫奈取色）开关发生变更时，应用 MUST 提示用户重启应用（通过 `needRestart()`），在用户确认应用时完整重启应用以使主题和通知栏外观一致生效，避免就地重建 Activity 导致底栏动画闪烁及正在运行的代理服务被迫重载断连。夜间模式变化 MUST 通过 AppCompatDelegate 立即应用。
 
-#### Scenario: 服务运行期间切换主题
+#### Scenario: 用户切换应用主题色或动态主题
 
-- **GIVEN** 代理服务处于启动状态
-- **WHEN** 用户选择另一主题色
-- **THEN** 服务被重新加载以刷新通知外观
-- **AND** 当前 Activity 以新主题重建
+- **GIVEN** 用户在设置中切换预设主题色或启用/关闭系统动态主题色
+- **WHEN** 偏好项发生变更
+- **THEN** 新设置被持久化
+- **AND** 弹出底部提示询问用户重启应用以应用更改
+- **AND** 不立即强制重建当前 Activity 或重载代理服务
 
 ### Requirement: Activity 在布局加载前应用主题
 
