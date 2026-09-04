@@ -26,6 +26,7 @@ import com.danielstone.materialaboutlibrary.MaterialAboutFragment
 import com.danielstone.materialaboutlibrary.items.MaterialAboutActionItem
 import com.danielstone.materialaboutlibrary.model.MaterialAboutCard
 import com.danielstone.materialaboutlibrary.model.MaterialAboutList
+import com.google.android.material.card.MaterialCardView
 import io.nekohasekai.sagernet.BuildConfig
 import io.nekohasekai.sagernet.R
 import io.nekohasekai.sagernet.databinding.LayoutAboutBinding
@@ -254,6 +255,38 @@ class AboutFragment : ToolbarFragment(R.layout.layout_about) {
                     ViewGroup.LayoutParams.WRAP_CONTENT,
                 )).apply {
                     height = ViewGroup.LayoutParams.WRAP_CONTENT
+                }
+
+                val cardStrokeWidth = resources.getDimensionPixelSize(
+                    R.dimen.card_stroke_width
+                )
+                val cardStrokeColor = ContextCompat.getColor(
+                    requireContext(),
+                    R.color.card_stroke
+                )
+                val cardCornerRadius = resources.getDimension(
+                    R.dimen.card_corner_radius
+                )
+                fun applyApplicationCardStyle(child: View) {
+                    (child as? MaterialCardView)?.apply {
+                        strokeWidth = cardStrokeWidth
+                        strokeColor = cardStrokeColor
+                        radius = cardCornerRadius
+                        cardElevation = 0f
+                    }
+                }
+
+                addOnChildAttachStateChangeListener(
+                    object : RecyclerView.OnChildAttachStateChangeListener {
+                        override fun onChildViewAttachedToWindow(child: View) {
+                            applyApplicationCardStyle(child)
+                        }
+
+                        override fun onChildViewDetachedFromWindow(child: View) = Unit
+                    }
+                )
+                for (index in 0 until childCount) {
+                    applyApplicationCardStyle(getChildAt(index))
                 }
             }
         }

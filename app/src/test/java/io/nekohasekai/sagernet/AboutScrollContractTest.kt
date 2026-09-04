@@ -24,6 +24,11 @@ class AboutScrollContractTest {
         assertTrue(source.contains("findViewById<RecyclerView>(R.id.mal_recyclerview)"))
         assertTrue(source.contains("isNestedScrollingEnabled = false"))
         assertTrue(source.contains("height = ViewGroup.LayoutParams.WRAP_CONTENT"))
+        assertTrue(source.contains("addOnChildAttachStateChangeListener("))
+        assertTrue(source.contains("onChildViewAttachedToWindow(child: View)"))
+        assertTrue(source.contains("applyApplicationCardStyle(child)"))
+        assertTrue(source.contains("strokeWidth = cardStrokeWidth"))
+        assertTrue(source.contains("strokeColor = cardStrokeColor"))
         assertTrue(
             source.windowed("override fun onViewCreated".length)
                 .count { it == "override fun onViewCreated" } == 2
